@@ -1,4 +1,5 @@
-(function (win, doc) {
+
+(function (win, doc, exports) {
 
     'use strict';
 
@@ -29,12 +30,60 @@
         }
     };
 
-    function Page(el) {
+    function Bounce(type) {
+    
+        this.init.apply(this, arguments);
+    }
+    Bounce.prototype = {
+        init: function (type, t, b, c, d) {
+        
+            this.type = type || 'easeIn';
+            this.t = t;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+        },
+        /**
+         * Get next value
+         * @returns {Number}
+         */
+        getValue: function () {
+        
+            var ret;
+
+            if (this.t > this.d) {
+                return null;
+            }
+
+            ret = this[this.type](this.t++, this.b, this.c, this.d);
+
+            if (ret > this.c / 2) {
+                ret = this.c - ret;
+            }
+
+            return ret;
+        },
+        /**
+         * Quadratic Easing
+         * @param {Number} t Time.
+         * @param {Number} b Beginning position.
+         * @param {Number} c Total change
+         * @param {Number} d Duration
+         */
+        easeOutQuad: function (t, b, c, d) {
+
+            return -c * (t /= d) * (t - 2) + b;
+        }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    function Fixnel(el) {
     
         this.init.apply(this, arguments);
     }
 
-    Page.prototype = {
+    Fixnel.prototype = {
         dragging: false,
         FPS: 1000 / 60,
         prevAccX: 0, prevAccY: 0,
@@ -69,6 +118,35 @@
                 self.timer = null;
             }, 100);
         },
+        _scrolling: function () {
+        
+            var self = this;
+
+            this.dragging = false;
+            this.moving = true;
+
+            this.timer = setInterval(function () {
+            
+                var oldY = self.getY();
+
+                if (Math.abs(self.vy) <= 0) {
+                    self._stopScrolling();
+                    return true;
+                }
+                if (oldY > 0) {
+                    self._stopScrolling();
+                    self._startBounce();
+                    return true;
+                }
+                if (oldY < -(self._getBottom())) {
+                    self._stopScrolling();
+                    self._boundUp();
+                    return true;
+                }
+
+                self.setY(oldY + self.getVY());
+            }, this.FPS);
+        },
         mousemove: function (e) {
 
             clearTimeout(this.stopTimer);
@@ -96,33 +174,7 @@
         },
         mouseup: function (e) {
         
-            var self = this,
-                timer = 0;
-
-            this.dragging = false;
-            this.moving = true;
-
-            this.timer = setInterval(function () {
-            
-                var oldY = self.getY();
-
-                if (Math.abs(self.vy) <= 0) {
-                    self._stopScrolling();
-                    return true;
-                }
-                if (oldY > 0) {
-                    self._stopScrolling();
-                    self._boundDown();
-                    return true;
-                }
-                if (oldY < -(self._getBottom())) {
-                    self._stopScrolling();
-                    self._boundUp();
-                    return true;
-                }
-
-                self.setY(oldY + self.getVY());
-            }, this.FPS);
+            this._scrolling();
         },
         mousedown: function (e) {
         
@@ -133,73 +185,18 @@
             this.prevY = e.pageY;
             this.prevT = +new Date();
         },
-        F: function (N) {
 
-            var x = 0;
-            
-            return N / -this.K;
+        /**
+         * Start bounc
+         * @param {Number} v Verlocity
+         */
+        _startBounce: function (v) {
+        
         },
 
-        _down: function () {
-
-            var oldY  = this.getY(),
-                vy    = this.F(this.getVY()),
-                nextY = (oldY + vy);
-
-            if (nextY <= 0) {
-                this.setY(0);
-                return false;
-            }
-
-            this.setY(nextY);
-        },
-
-        _up: function () {
-
-            var oldY  = this.getY(),
-                vy    = this.F(this.getVY()),
-                nextY = (oldY + vy),
-                height = this._getBottom();
-
-            if (nextY >= -height) {
-                this.setY(-height);
-                return false;
-            }
-
-            this.setY(nextY);
-        },
-
-        _boundDown: function () {
-
-            var self = this;
-
-            clearInterval(this.timer);
-            
-            this.timer = setInterval(function () {
-                if (Math.abs(self.vy) <= 0) {
-                    clearInterval(self.timer);
-                }
-                
-                self._down();
-            }, this.FPS);
-        },
-
-        _boundUp: function () {
-
-            var self = this,
-                height = this._getHeight();
-
-            clearInterval(this.timer);
-            
-            this.timer = setInterval(function () {
-                if (Math.abs(self.vy) <= 0) {
-                    clearInterval(self.timer);
-                }
-                
-                self._up();
-            }, this.FPS);
-        },
-
+        /**
+         * Stop scrolling.
+         */
         _stopScrolling: function () {
         
             //this.vy = 0;
@@ -247,6 +244,36 @@
 
     //////////////////////////////////////////////
 
-    var p = new Page(dot);
+    exports.Fixnel = Fixnel;
+    exports.Bounce = Bounce;
+
+
+
+
+    var p = new Fixnel(dot);
+
+    var t = 0,
+        b = 0,
+        c = 500,
+        d = 30;
+
+    var bounce = new Bounce('easeOutQuad', t, b, c, d);
+    var test = document.querySelector('.test');
+    var style = test.style;
+    style.position = 'absolute';
+    style.top = 0;
+    style.left = '300px';
+    style.zIndex = 10;
+
+    (function easing() {
+
+        var res = bounce.getValue();
+
+        if (res === null) {
+            return;
+        }
+        style.top = res + 'px';
+        setTimeout(easing, 1000 / 60);
+    }());
         
-}(this, document));
+}(this, document, this));
