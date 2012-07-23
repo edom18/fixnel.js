@@ -85,6 +85,7 @@
 
     Fixnel.prototype = {
         dragging: false,
+        DURATION: 30,
         FPS: 1000 / 60,
         prevAccX: 0, prevAccY: 0,
         prevX: 0, prevY: 0,
@@ -118,33 +119,95 @@
                 self.timer = null;
             }, 100);
         },
+
+        /**
+         * Get next value.
+         * @returns {Number} next value
+         */
+        getValue: function () {
+        
+            var oldY = this.getY(),
+                t = 0, b = 0, c, d = this.DURATION,
+                ret = 0;
+
+            if (this.bouncing) {
+                ret = this.bounce.getValue();
+
+                if (ret === null) {
+                    this.bounce = null;
+                    return null;
+                }
+
+                return ret;
+            }
+
+            if (Math.abs(this.vy) <= 0) {
+                this._stopScrolling();
+                return null;
+            }
+
+            if (oldY > 0) {
+                if (!this.bouncing) {
+                    c = this.getVY() * 30;
+                    console.log(c);
+                    c = (c > 150) ? 150 : c;
+                    this.bounce = new Bounce('easeOutQuad', t, b, c, d);
+                    this.bouncing = true;
+                }
+
+                ret = this.bounce.getValue();
+
+                if (ret === null) {
+                    this.bounce = null;
+                    return null;
+                }
+
+                return ret;
+            }
+
+            if (oldY < -(this._getBottom())) {
+                if (!this.bouncing) {
+                    b = this._getBottom();
+                    c = this.getVY() * 30;
+                    console.log(b, ':', c);
+                    c = (c < -150) ? -150 : c;
+                    this.bounce = new Bounce('easeOutQuad', t, b, c, d);
+                    this.bouncing = true;
+                }
+
+                ret = this.bounce.getValue();
+
+                if (ret === null) {
+                    this.bounce = null;
+                    return null;
+                }
+
+                return ret;
+            }
+
+            ret = oldY + this.getVY();
+
+            return ret;
+        },
         _scrolling: function () {
         
             var self = this;
 
-            this.dragging = false;
-            this.moving = true;
+            self.dragging = false;
+            self.moving = true;
 
-            this.timer = setInterval(function () {
+            self.timer = setInterval(function () {
             
-                var oldY = self.getY();
-
-                if (Math.abs(self.vy) <= 0) {
+                var value = self.getValue();
+                
+                //console.log(value);
+                if (value === null) {
+                    console.log('end');
                     self._stopScrolling();
-                    return true;
-                }
-                if (oldY > 0) {
-                    self._stopScrolling();
-                    self._startBounce();
-                    return true;
-                }
-                if (oldY < -(self._getBottom())) {
-                    self._stopScrolling();
-                    self._boundUp();
-                    return true;
+                    return false;
                 }
 
-                self.setY(oldY + self.getVY());
+                self.setY(value);
             }, this.FPS);
         },
         mousemove: function (e) {
@@ -187,21 +250,14 @@
         },
 
         /**
-         * Start bounc
-         * @param {Number} v Verlocity
-         */
-        _startBounce: function (v) {
-        
-        },
-
-        /**
          * Stop scrolling.
          */
         _stopScrolling: function () {
         
-            //this.vy = 0;
+            this.vy = 0;
             clearInterval(this.timer);
             this.moving = false;
+            this.bouncing = false;
         },
 
         _getParentHeight: function () {
@@ -223,7 +279,7 @@
         
             var curVY = this.vy;
 
-            this.vy = this.vy - (this.vy / 40) << 0;
+            this.vy = this.vy - (this.vy / 30) << 0;
 
             return curVY;
         },
@@ -238,7 +294,7 @@
         },
         setY: function (y) {
         
-            this.el.style.webkitTransform = 'translateY(' + y + 'px)';
+            this.el.style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
         }
     };
 
@@ -246,8 +302,6 @@
 
     exports.Fixnel = Fixnel;
     exports.Bounce = Bounce;
-
-
 
 
     var p = new Fixnel(dot);
