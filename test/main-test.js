@@ -5,12 +5,14 @@
     var dot = document.querySelector('#inner');
     var p = new Fixnel(dot);
 
+    //-1730 -1596 
     var t = 0,
-        b = 0,
-        c = 500,
+        b = -173,
+        f = -159,
+        c = f -b,
         d = 30;
 
-    var bounce = new Bounce('easeInExpo', t, b, c, d);
+    var bounce = new Bounce('easeOutQuart', t, b, c, d);
     var test = document.querySelector('.test');
     var style = test.style;
     style.position = 'absolute';
