@@ -10,7 +10,7 @@
         c = 500,
         d = 30;
 
-    var bounce = new Bounce('easeOutQuad', t, b, c, d);
+    var bounce = new Bounce('easeInExpo', t, b, c, d);
     var test = document.querySelector('.test');
     var style = test.style;
     style.position = 'absolute';

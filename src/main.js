@@ -115,22 +115,22 @@
             return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
         },
         easeInOutCirc: function (t, b, c, d) {
-            if ((t/=d/2) < 1) {
+            if ((t /= d / 2) < 1) {
                 return c / 2 * (1 - Math.sqrt(1 - t * t)) + b;
             }
             return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
         },
         easeInQuad: function (t, b, c, d) {
-            return c*(t/=d)*t + b;
+            return c * (t /= d) * t + b;
         },
         easeOutQuad: function (t, b, c, d) {
             return -c * (t /= d) * (t - 2) + b;
         },
         easeInOutQuad: function (t, b, c, d) {
             if ((t/=d/2) < 1) {
-                return c/2*t*t + b;
+                return c / 2 * t * t + b;
             }
-            return -c/2 * ((--t)*(t-2) - 1) + b;
+            return -c/2 * ((--t) * (t - 2) - 1) + b;
         }
     };
 
