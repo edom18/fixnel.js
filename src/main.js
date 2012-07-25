@@ -174,10 +174,6 @@
 
             ret = this.timingFunction(this.t++, this.b, this.c, this.d);
 
-//            if (ret > this.c / 2) {
-//                ret = this.c - ret;
-//            }
-
             return ret;
         }
     };
@@ -185,7 +181,6 @@
     ////////////////////////////////////////////////////////////////////
 
     function Fixnel(el) {
-    
         this.init.apply(this, arguments);
     }
 
@@ -209,44 +204,17 @@
             this.Bounce = Bounce;
 
             el.addEventListener(event.START, _bind(this.mousedown, this), false);
+            el.addEventListener(event.START, _bind(this.stopScroll, this), false);
             doc.addEventListener(event.END, _bind(this.mouseup, this), false);
             doc.addEventListener(event.MOVE, _bind(this.mousemove, this), false);
-
-            el.addEventListener(event.START, _bind(this.stopScroll, this), false);
         },
 
+        /**
+         * To is dragging
+         * @return {Boolean} return true if panel is dragging.
+         */
         isDragging: function () {
-        
             return this.dragging;
-        },
-        _createBounce: function (type, t, b, c, d) {
-        
-            //c = (c > 150) ? 150 : c;
-            c = (c < -150) ? -150 : c;
-            this.bounce = new this.Bounce(type, t, b, c, d);
-            this.bouncing = true;
-        },
-        _createTopBounce: function () {
-        
-            var d = this.DURATION,
-                t = d / 2;
-
-            this._createBounce('easeOutCubic', t, 0, 150, d);
-        },
-        _createBottomBounce: function () {
-        
-            var b, c, d = this.DURATION, t = d / 2;
-
-                    b = this._getBottom();
-                    c = this.getVY() * d;
-                    c = (c < -150) ? -150 : c;
-                    this.bounce = new Bounce('easeOutQuad', t, b, c, d);
-                    this.bouncing = true;
-//            var d = this.DURATION,
-//                t = d / 2,
-//                bottom = this._getBottom();
-
-//            this._createBounce('easeOutCubic', t, bottom, bottom + 150, d);
         },
 
         /**
@@ -269,23 +237,29 @@
          */
         getValue: function () {
         
-            var oldY = this.getY(),
+            var oldY,
                 bottom,
-                t = 0, b = 0, c, d = this.DURATION,
+                t = 0,
+                b = 0,
+                c = 0,
+                d = this.DURATION,
+                vy = this.vy,
                 ret = 0;
 
             if (this.bouncing) {
                 ret = this.bounce.getValue();
 
                 if (ret === null) {
-                    this.bounce = null;
+                    this._stopScrolling();
                     return null;
                 }
 
                 return ret;
             }
 
-            if (Math.abs(this.vy) <= 0) {
+            oldY = this.getY();
+
+            if (Math.abs(vy) <= 0) {
                 if (oldY > 0) {
                     b = oldY;
                     c = 0 - b;
@@ -304,53 +278,12 @@
                 }
             }
 
-            if (oldY + this.vy > 0) {
-                this.vy = (this.vy > 10) ?  10 : this.vy;
+            if (oldY + vy > 0) {
+                this.vy = (vy > 10) ?  10 : vy;
             }
-            if (oldY - this.vy < (bottom = -this._getBottom())) {
-                this.vy = (this.vy < -10) ?  -10 : this.vy;
+            if (oldY - vy < (bottom = -this._getBottom())) {
+                this.vy = (vy < -10) ?  -10 : vy;
             }
-
-            /*!-------------------------------
-             * TODO
-             * will create factory.
-            ---------------------------------- */
-//            if (oldY > 0) {
-//                if (!this.bouncing) {
-//                    c = this.getVY() * d;
-//                    c = (c > 150) ? 150 : c;
-//                    this.bounce = new Bounce('easeOutQuad', t, b, c, d);
-//                    this.bouncing = true;
-//                }
-
-//                ret = this.bounce.getValue();
-
-//                if (ret === null) {
-//                    this.bounce = null;
-//                    return null;
-//                }
-
-//                return ret;
-//            }
-
-//            if (oldY < -(this._getBottom())) {
-//                if (!this.bouncing) {
-//                    b = this._getBottom();
-//                    c = this.getVY() * d;
-//                    c = (c < -150) ? -150 : c;
-//                    this.bounce = new Bounce('easeOutQuad', t, b, c, d);
-//                    this.bouncing = true;
-//                }
-
-//                ret = this.bounce.getValue();
-
-//                if (ret === null) {
-//                    this.bounce = null;
-//                    return null;
-//                }
-
-//                return ret;
-//            }
 
             ret = oldY + this.getVY();
             return ret;
@@ -376,30 +309,6 @@
         },
 
         /**
-         * Go to top
-         */
-        _goToTop: function () {
-        
-            var vy = this.getVY(),
-                duration = this.DURATION;
-
-            this._createTopBounce();
-            this._scrolling();
-        },
-
-        /**
-         * Go to bottom
-         */
-        _goToBottom: function () {
-
-            var vy = this.getVY(),
-                duration = this.DURATION;
-
-            this._createBottomBounce();
-            this._scrolling();
-        },
-
-        /**
          * Stop scrolling.
          */
         _stopScrolling: function () {
@@ -408,6 +317,7 @@
             clearInterval(this.timer);
             this.moving = false;
             this.bouncing = false;
+            this.bounce = null;
         },
 
         /**
@@ -445,19 +355,7 @@
          * @param {EventObject} e
          */
         mouseup: function (e) {
-        
-            var y = this.getY(),
-                bottom = this._getBottom();
-
-//            if (y > 0) {
-//                this._goToTop();
-//            }
-//            else if (y < -bottom) {
-//                this._goToBottom();
-//            }
-//            else {
-                this._scrolling();
-            //}
+            this._scrolling();
         },
 
         /**
@@ -479,7 +377,6 @@
          * @returns {Number} parent element's height
          */
         _getParentHeight: function () {
-        
             return this.parentEl.clientHeight;
         },
 
