@@ -283,8 +283,12 @@
             this.ratio = this.containerHeight / this.contentHeight;
             this.size = (this.containerHeight * this.ratio) | 0;
             this.el = this._createElement();
+
             this.fl.on('update', this._update, this);
             this.fl.on('move', this._move, this);
+            this.fl.on('movestart', this._moveStart, this);
+
+            this.on('moveend', this._moveEnd, this);
 
             this.render();
         },
@@ -294,12 +298,7 @@
 
             this.container.appendChild(this.el);
             this._show();
-
-            this.timer = setTimeout(function () {
-            
-                this.timer = null;
-                self._hide();
-            }, 2000);
+            this._wait(2000);
 
             return this;
         },
@@ -315,57 +314,57 @@
         _move: function (e, data) {
 
             var value = data.value;
+
+            if (value === null) {
+                this.trigger('moveend');
+                return false;
+            }
             this._setY(value);
+        },
+        _moveStart: function () {
+        
+            if (this.moving || this.timer) {
+                return false;
+            }
+            clearTimeout(this.timer);
+            this.timer = null;
+            this.moving = true;
             this._show();
         },
-        _hide: function () {
+        _moveEnd: function () {
         
-            var self = this,
-                t = 0,
-                b = 1,
-                f = 0,
-                c = 0,
-                d = 30,
-                easing = this.easing,
-                style = this.getEl().style;
-
-            if (easing) {
-                b = easing.getValue();
-            }
-            c = f - b;
-
-            this.easing = easing = new this.Easing('easeOutQuad', t, b, c, d);
-
-            (function ease() {
-
-                var val = easing.getValue();
-
-                if (val === null) {
-                    ease = null;
-                    easing = null;
-                    style.opacity = 0;
-                    return false;
-                }
-
-                style.opacity = val;
-                setTimeout(ease, self.FPS);
-            }());
+            this._wait(700);
+            this.moving = false;
         },
-        _show: function () {
+        _wait: function (delay) {
+        
+            var self = this;
+
+            delay || (delay = 500);
+
+            clearTimeout(this.timer);
+            this.timer = setTimeout(function () {
+            
+                clearTimeout(self.timer);
+                self.timer = null;
+                self._hide();
+            }, delay);
+        },
+        _fade: function (b, f) {
         
             var self = this,
                 t = 0,
-                b = 0,
-                f = 1,
+                _b = b,
+                _f = f,
                 c = 0,
                 d = this.DURATION,
                 easing = this.easing,
                 style = this.getEl().style;
 
             if (easing) {
-                b = easing.getValue();
+                _b = easing.getValue();
             }
-            c = f - b;
+            c = _f - _b;
 
             this.easing = easing = new this.Easing('easeOutQuad', t, b, c, d);
 
@@ -375,13 +374,27 @@
 
                 if (val === null) {
                     self.easing = null;
-                    style.opacity = 1;
+                    style.opacity = f;
                     return false;
                 }
 
                 style.opacity = val;
                 setTimeout(ease, self.FPS);
             }());
+        },
+        _hide: function () {
+        
+            var b = 1,
+                f = 0;
+
+            this._fade(b, f);
+        },
+        _show: function () {
+        
+            var b = 0,
+                f = 1;
+
+            this._fade(b, f);
         },
         _createElement: function () {
 
@@ -560,15 +573,15 @@
             
                 var value = self.getValue();
                 
+                self.trigger('move', {
+                    value: value,
+                    direction: 'y'
+                });
                 if (value === null) {
                     self._stopScrolling();
                     return false;
                 }
 
-                self.trigger('move', {
-                    value: value,
-                    direction: 'y'
-                });
                 self.setY(value);
             }, this.FPS);
         },
@@ -607,6 +620,7 @@
         
             e.preventDefault();
             this.dragging = true;
+            this.trigger('movestart');
 
             //this.prevX = e.pageX;
             this.prevY = e.pageY;
@@ -620,10 +634,10 @@
          */
         _move: function (e) {
 
-            clearTimeout(this.stopTimer);
             if (!this.isDragging()) {
                 return true;
             }
+            clearTimeout(this.stopTimer);
 
             var oldY = this.getY(),
                 now = +new Date(),
@@ -641,6 +655,11 @@
 
             //set position
             this.setY((oldY -= dist));
+
+            this.trigger('move', {
+                value: oldY,
+                direction: 'y'
+            });
 
             //set previous values.
             this.prevT    = now;
