@@ -19,7 +19,7 @@
             MOVE : isTouch ? 'touchmove'  : 'mousemove',
             END  : isTouch ? 'touchend'   : 'mouseup'
         },
-        Easing;
+        timingFunction;
 
     /////////////////////////////////////////////
 
@@ -50,7 +50,7 @@
      *     setTimeout(easing, 1000 / 60);
      * }());
      */
-    Easing = {
+    timingFunction = {
         easeInCubic: function (t, b, c, d) {
             return c * Math.pow (t/d, 3) + b;
         },
@@ -270,6 +270,9 @@
         this.init.apply(this, arguments);
     }
     Scrollbar.prototype = copyClone({}, EventDispatcher.prototype, {
+        FPS: 1000 / 60,
+        DURATION: 30,
+        Easing: Easing,
         init: function (fl) {
         
             this.fl = fl;
@@ -278,9 +281,8 @@
             this.contentHeight = fl.getHeight();
             this.containerHeight = fl.getParentHeight();
             this.ratio = this.containerHeight / this.contentHeight;
-            this.size = this.containerHeight * this.ratio;
+            this.size = (this.containerHeight * this.ratio) | 0;
             this.el = this._createElement();
-            this.container.appendChild(this.el);
             this.fl.on('update', this._update, this);
             this.fl.on('move', this._move, this);
 
@@ -288,7 +290,22 @@
         },
         render: function () {
         
+            var self = this;
+
+            this.container.appendChild(this.el);
+            this._show();
+
+            this.timer = setTimeout(function () {
+            
+                this.timer = null;
+                self._hide();
+            }, 2000);
+
             return this;
+        },
+        getEl: function () {
+        
+            return this.el;
         },
         _setY: function (y) {
         
@@ -299,6 +316,72 @@
 
             var value = data.value;
             this._setY(value);
+            this._show();
+        },
+        _hide: function () {
+        
+            var self = this,
+                t = 0,
+                b = 1,
+                f = 0,
+                c = 0,
+                d = 30,
+                easing = this.easing,
+                style = this.getEl().style;
+
+            if (easing) {
+                b = easing.getValue();
+            }
+            c = f - b;
+
+            this.easing = easing = new this.Easing('easeOutQuad', t, b, c, d);
+
+            (function ease() {
+
+                var val = easing.getValue();
+
+                if (val === null) {
+                    ease = null;
+                    easing = null;
+                    style.opacity = 0;
+                    return false;
+                }
+
+                style.opacity = val;
+                setTimeout(ease, self.FPS);
+            }());
+        },
+        _show: function () {
+        
+            var self = this,
+                t = 0,
+                b = 0,
+                f = 1,
+                c = 0,
+                d = this.DURATION,
+                easing = this.easing,
+                style = this.getEl().style;
+
+            if (easing) {
+                b = easing.getValue();
+            }
+            c = f - b;
+
+            this.easing = easing = new this.Easing('easeOutQuad', t, b, c, d);
+
+            (function ease() {
+
+                var val = easing.getValue();
+
+                if (val === null) {
+                    self.easing = null;
+                    style.opacity = 1;
+                    return false;
+                }
+
+                style.opacity = val;
+                setTimeout(ease, self.FPS);
+            }());
         },
         _createElement: function () {
 
@@ -307,6 +390,7 @@
 
             el.className = 'fixnel-scrollbar';
             style.cssText = [
+                'opacity: 0;',
                 'position: absolute;',
                 'right: 1px;',
                 'top: 0;',
@@ -325,10 +409,10 @@
         }
     });
 
-    function Bounce(type) {
+    function Easing(type) {
         this.init.apply(this, arguments);
     }
-    Bounce.prototype = {
+    Easing.prototype = {
         init: function (type, t, b, c, d) {
         
             this.timingFunction = this.easing[(type || 'easeInQuad')];
@@ -337,7 +421,7 @@
             this.c = c;
             this.d = d;
         },
-        easing: Easing,
+        easing: timingFunction,
 
         /**
          * Get next value
@@ -382,7 +466,7 @@
 
             this.el = el;
             this.parentEl = el.parentNode;
-            this.Bounce = Bounce;
+            this.Easing = Easing;
             this.scrollbar = new Scrollbar(this);
 
             el.className += (el.className) ? ' ' + className : className;
@@ -440,13 +524,13 @@
                 if (oldY > 0) {
                     b = oldY;
                     c = 0 - b;
-                    this.bounce = new this.Bounce('easeOutExpo', t, b, c, d);
+                    this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
                     this.bouncing = true;
                 }
                 else if (oldY < (bottom = -this._getBottom())) {
                     b = oldY;
                     c = bottom - b;
-                    this.bounce = new this.Bounce('easeOutExpo', t, b, c, d);
+                    this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
                     this.bouncing = true;
                 }
                 else {
@@ -659,5 +743,5 @@
     exports.Fixnel = Fixnel;
 
     //for test.
-    exports.Bounce = Bounce;
+    exports.Easing = Easing;
 }(this, document, this));

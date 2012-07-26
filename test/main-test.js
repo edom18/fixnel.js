@@ -12,7 +12,7 @@
         c = f -b,
         d = 30;
 
-    var bounce = new Bounce('easeOutQuart', t, b, c, d);
+    var bounce = new Easing('easeOutQuart', t, b, c, d);
     var test = document.querySelector('.test');
     var style = test.style;
     style.position = 'absolute';
@@ -20,14 +20,14 @@
     style.left = '300px';
     style.zIndex = 10;
 
-    (function easing() {
+//    (function easing() {
 
-        var res = bounce.getValue();
+//        var res = bounce.getValue();
 
-        if (res === null) {
-            return;
-        }
-        style.top = res + 'px';
-        setTimeout(easing, 1000 / 60);
-    }());
+//        if (res === null) {
+//            return;
+//        }
+//        style.top = res + 'px';
+//        setTimeout(easing, 1000 / 60);
+//    }());
 }(this, document));
