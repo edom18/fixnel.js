@@ -1,0 +1,1 @@
+{"tagline":"ページを固定するためのライブラリ。","note":"Don't delete this file! It's used internally to help with page regeneration.","google":"","body":"# fixnel.js\r\n\r\nfixnel.jsは、iPhoneのUIである慣性スクロールを再現したJSです。  \r\n位置固定のfixとpanelを合成した造語です。  \r\n現状ではまだ縦スクロールにしか対応していません。  \r\nさらにまだバグがあるので、とりあえずの公開です。\r\n","name":"Fixnel.js"}
