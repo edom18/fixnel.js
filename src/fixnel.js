@@ -135,18 +135,197 @@
 
     /////////////////////////////////////////////
 
+
+    function EventDispatcher() {}
+    EventDispatcher.prototype = (function() {
+        /**
+         *  @param {string}   typ
+         *  @param {?Object=} opt_evt
+         *  @return {void}
+         */
+        function dispatchEvent(typ, opt_evt) {
+
+            if (!typ) {
+                throw "INVALID EVENT TYPE " + typ;
+            }
+            
+            var obj = this.handlers || (this.handlers = {}),
+                arr = [].concat(obj[typ] || []), //Use copy
+                evt = opt_evt || {},
+                len, i, fnc;
+                
+            evt.type || (evt.type = typ);
+            
+            // handle specified event type
+            for (i = 0, len = arr.length; i < len; ++i) {
+                (fnc = arr[i][0]) && fnc.call(arr[i][1] || this, this, evt);
+            }
+            
+            // handle wildcard "*" event
+            arr  = obj['*'] || [];
+            for (i = 0, len = arr.length; i < len; ++i) {
+                (fnc = arr[i][0]) && fnc.call(arr[i][1] || this, this, evt);
+            }
+        }
+
+        /**
+         *  @param {string} typ
+         *  @param {function(evt:Object):void} fnc
+         *  @param {Object} [context] if would like to be called context is set this param.
+         *  @return {void}
+         */
+        function addEventListener(typ, fnc, context) {
+
+            if (!typ) {
+                throw "addEventListener:INVALID EVENT TYPE " + typ + " " + fnc;
+            }
+            
+            var obj = this.handlers || (this.handlers = {});
+            
+            (obj[typ] || (obj[typ] = [])).push([fnc, context]);
+        }
+        /**
+         *  @param {string} typ
+         *  @param {function(evt:object):void} fnc
+         */
+        function removeEventListener(typ, fnc) {
+            if (!typ) {
+                throw "removeEventListener:INVALID EVENT TYPE " + typ + " " + fn;
+            }
+            
+            var obj = this.handlers || (this.handlers = {}),
+                arr = obj[typ] || [],
+                i = arr.length;
+                
+            while(i) {
+                arr[--i][0] === fnc && arr.splice(i, 1);
+            }
+        }
+
+        function one(typ, fnc, context) {
+        
+            var self = this;
+
+            function _fnc() {
+
+                self.removeEventListener(typ, _fnc, context);
+                fnc.apply(context || self, arguments);
+            }
+
+            this.addEventListener(typ, _fnc, context);
+        }
+
+        /* --------------------------------------------------------------------
+            EXPORT
+        ----------------------------------------------------------------------- */
+        return {
+            dispatchEvent       : dispatchEvent,
+            trigger             : dispatchEvent,
+            pub                 : dispatchEvent,
+            
+            addEventListener    : addEventListener,
+            bind                : addEventListener,
+            sub                 : addEventListener,
+            on                  : addEventListener,
+            
+            removeEventListener : removeEventListener,
+            unbind              : removeEventListener,
+            off                 : removeEventListener,
+
+            one                 : one
+        };
+    }());
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * copy arguments object properties to `obj`
+     * @param {Object} obj base to be copy of properties.
+     */
+    function copyClone(obj) {
+
+        var args = Array.prototype.slice.call(arguments, 1),
+            l    = args.length,
+            i    = 0,
+            src, prop;
+
+        for (; i < l; i++) {
+            src = args[i];
+            for (prop in src) {
+                obj[prop] = args[i][prop];
+            }
+        }
+
+        return obj;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @class Scrollbar
+     * To create scroll bar.
+     * @param {FixnelObject} fl
+     */
     function Scrollbar() {
-    
         this.init.apply(this, arguments);
     }
-    Scrollbar.prototype = {
-        init: function () {
+    Scrollbar.prototype = copyClone({}, EventDispatcher.prototype, {
+        init: function (fl) {
         
+            this.fl = fl;
+            //this.flWidth = fl.getWidth();
+            this.container = fl.getContainer();
+            this.contentHeight = fl.getHeight();
+            this.containerHeight = fl.getParentHeight();
+            this.ratio = this.containerHeight / this.contentHeight;
+            this.size = this.containerHeight * this.ratio;
+            this.el = this._createElement();
+            this.container.appendChild(this.el);
+            this.fl.on('update', this._update, this);
+            this.fl.on('move', this._move, this);
+
+            this.render();
+        },
+        render: function () {
+        
+            return this;
+        },
+        _setY: function (y) {
+        
+            var _y = -(y * this.ratio);
+            this.el.style.webkitTransform = 'translate3d(0, ' + _y + 'px, 0)';
+        },
+        _move: function (e, data) {
+
+            var value = data.value;
+            this._setY(value);
+        },
+        _createElement: function () {
+
+            var el = document.createElement('span'),
+                style = el.style;
+
+            el.className = 'fixnel-scrollbar';
+            style.cssText = [
+                'position: absolute;',
+                'right: 1px;',
+                'top: 0;',
+                'width: 6px;',
+                'height: ' + this.size + 'px;',
+                'background-color: rgba(0, 0, 0, 0.5);',
+                'border-color: rgba(255, 255, 255, 0.3);',
+                'border-radius: 3px;'
+            ].join('');
+
+            return el;
+        },
+        _update: function () {
+        
+            console.log('update');
         }
-    };
+    });
 
     function Bounce(type) {
-    
         this.init.apply(this, arguments);
     }
     Bounce.prototype = {
@@ -184,7 +363,7 @@
         this.init.apply(this, arguments);
     }
 
-    Fixnel.prototype = {
+    Fixnel.prototype = copyClone({}, EventDispatcher.prototype, {
         dragging: false,
         DURATION: 30,
         FPS: 1000 / 60,
@@ -199,12 +378,16 @@
         vy: 0,
         init: function (el) {
         
+            var className = 'fixnel-body';
+
             this.el = el;
             this.parentEl = el.parentNode;
             this.Bounce = Bounce;
+            this.scrollbar = new Scrollbar(this);
 
+            el.className += (el.className) ? ' ' + className : className;
             el.addEventListener(event.START, _bind(this._down, this), false);
-            el.addEventListener(event.START, _bind(this.stopScroll, this), false);
+            el.addEventListener(event.START, _bind(this._stop, this), false);
             doc.addEventListener(event.END, _bind(this._up, this), false);
             doc.addEventListener(event.MOVE, _bind(this._move, this), false);
         },
@@ -298,6 +481,10 @@
                     return false;
                 }
 
+                self.trigger('move', {
+                    value: value,
+                    direction: 'y'
+                });
                 self.setY(value);
             }, this.FPS);
         },
@@ -317,7 +504,7 @@
         /**
          * Event handler
          */
-        stopScroll: function (e) {
+        _stop: function (e) {
         
             var self = this;
 
@@ -396,21 +583,12 @@
         },
 
         /**
-         * Get height
-         * @returns {Number} element's height
-         */
-        _getHeight: function () {
-        
-            return this.el.clientHeight;
-        },
-
-        /**
          * Get bottom
          * @returns {Number} return the bottom number
          */
         _getBottom: function () {
         
-            return this._getHeight() - this._getParentHeight();
+            return this.getHeight() - this._getParentHeight();
         },
 
         /**
@@ -446,8 +624,35 @@
         setY: function (y) {
         
             this.el.style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
+        },
+
+        /**
+         * Get container
+         * @returns {Element} A parent element.
+         */
+        getContainer: function () {
+        
+            return this.parentEl;
+        },
+
+        /**
+         * Get height
+         * @returns {Number} element's height
+         */
+        getHeight: function () {
+        
+            return this.el.clientHeight;
+        },
+
+        /**
+         * Get parent height
+         * @returns {Number} return the parent element height.
+         */
+        getParentHeight: function () {
+        
+            return this.parentEl.clientHeight;
         }
-    };
+    });
 
     //////////////////////////////////////////////
 
