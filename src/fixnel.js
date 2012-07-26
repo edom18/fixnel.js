@@ -323,17 +323,17 @@
         },
         _moveStart: function () {
         
+            clearTimeout(this.timer);
             if (this.moving || this.timer) {
                 return false;
             }
-            clearTimeout(this.timer);
             this.timer = null;
             this.moving = true;
             this._show();
         },
         _moveEnd: function () {
         
-            this._wait(700);
+            this._wait(1000);
             this.moving = false;
         },
         _wait: function (delay) {
@@ -347,7 +347,9 @@
             
                 clearTimeout(self.timer);
                 self.timer = null;
-                self._hide();
+                if (!self.moving) {
+                    self._hide();
+                }
             }, delay);
         },
         _fade: function (b, f) {
@@ -362,24 +364,27 @@
                 style = this.getEl().style;
 
             if (easing) {
-                _b = easing.getValue();
+                _b = easing.getValue() || b;
             }
             c = _f - _b;
 
             this.easing = easing = new this.Easing('easeOutQuad', t, b, c, d);
 
+            clearInterval(this.fadeTimer);
             (function ease() {
 
                 var val = easing.getValue();
 
                 if (val === null) {
                     self.easing = null;
+                    clearTimeout(self.fadeTimer);
+                    self.fadeTimer = null;
                     style.opacity = f;
                     return false;
                 }
 
                 style.opacity = val;
-                setTimeout(ease, self.FPS);
+                self.fadeTimer = setTimeout(ease, self.FPS);
             }());
         },
         _hide: function () {
@@ -449,7 +454,6 @@
             }
 
             ret = this.timingFunction(this.t++, this.b, this.c, this.d);
-
             return ret;
         }
     };
