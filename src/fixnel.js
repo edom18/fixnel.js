@@ -311,18 +311,10 @@
             this.containerHeight = this.fl.getParentHeight();
             this.ratio = this.containerHeight / this.contentHeight;
         },
-        _getY: function () {
-
-            var matrix = new WebKitCSSMatrix(window.getComputedStyle(this.el).webkitTransform),
-                //x = matrix.e,
-                y = matrix.f;
-
-            return y;
-        },
-        _setY: function (y) {
+        _setPos: function (pos) {
         
-            var _y = -(y * this.ratio);
-            this.el.style.webkitTransform = 'translate3d(0, ' + _y + 'px, 0)';
+            var _pos = -(pos * this.ratio);
+            this.el.style.webkitTransform = 'translate3d(0, ' + _pos + 'px, 0)';
         },
 
         /**
@@ -356,32 +348,32 @@
         /**
          * Set size as top
          */
-        _setSizeTop: function (val) {
+        _setSizeStart: function (val) {
         
             val = ((this.containerHeight * this.ratio) | 0) - val / 2;
-            this._setPosOriginTop();
+            this._setPosOriginStart();
             this._setSize(val);
         },
 
         /**
          * Set size as bottom
          */
-        _setSizeBottom: function (val) {
+        _setSizeEnd: function (val) {
         
             var delta = val + (this.contentHeight - this.containerHeight);
 
             val = ((this.containerHeight * this.ratio) | 0) + delta / 2;
-            this._setPosOriginBottom();
+            this._setPosOriginEnd();
             this._setSize(val);
         },
 
-        _setPosOriginTop: function () {
+        _setPosOriginStart: function () {
         
             this.inner.style.top = 0;
             this.inner.style.bottom = 'auto';
         },
 
-        _setPosOriginBottom: function () {
+        _setPosOriginEnd: function () {
         
             this.inner.style.top = 'auto';
             this.inner.style.bottom = 0;
@@ -397,17 +389,17 @@
             var value = data.value;
 
             if (value > 0) {
-                this._setSizeTop(value);
+                this._setSizeStart(value);
             }
             else if (value < -(this.contentHeight - this.containerHeight)) {
-                this._setSizeBottom(value);
+                this._setSizeEnd(value);
             }
             else if (value === null) {
                 this.trigger('moveend');
                 return false;
             }
             else {
-                this._setY(value);
+                this._setPos(value);
             }
         },
         _moveStart: function () {
