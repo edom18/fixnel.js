@@ -1,15 +1,18 @@
 @import "compass";
 @import "compass/css3";
+@import "compass/reset";
 
-#container {
+html, body {
+    height: 100%;
+}
+
+.container {
     -webkit-user-select: none;
     position: relative;
-    width: 200px;
-    height: 300px;
+    height: 100%;
     overflow: hidden;
-    border: solid 1px #999;
     
-    #inner {
+    .inner {
         position: absolute;
         left: 0;
         top: 0;
@@ -17,13 +20,3 @@
         @include background(linear-gradient(#999, #fff));
     }
 }
-
-input {
-    border: solid 1px #999;
-    line-height: 1.5;
-    border-radius: 4px;
-    padding: 5px;
-    width: 2em;
-    text-align: center;
-}
-
