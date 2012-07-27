@@ -276,8 +276,10 @@
         init: function (fl) {
         
             this.fl = fl;
+
+            this._createElement();
             this._getContentInfo();
-            this.el = this._createElement();
+            this._setInitSize((this.containerHeight * this.ratio) | 0);
 
             this.fl.on('update', this._update, this);
             this.fl.on('move', this._move, this);
@@ -303,16 +305,86 @@
         _getContentInfo: function () {
         
             //this.flWidth = this.fl.getWidth();
+            this.width = +(this.el.style.width || '').replace('px', '');
             this.container = this.fl.getContainer();
             this.contentHeight = this.fl.getHeight();
             this.containerHeight = this.fl.getParentHeight();
             this.ratio = this.containerHeight / this.contentHeight;
-            this.size = (this.containerHeight * this.ratio) | 0;
+        },
+        _getY: function () {
+
+            var matrix = new WebKitCSSMatrix(window.getComputedStyle(this.el).webkitTransform),
+                //x = matrix.e,
+                y = matrix.f;
+
+            return y;
         },
         _setY: function (y) {
         
             var _y = -(y * this.ratio);
             this.el.style.webkitTransform = 'translate3d(0, ' + _y + 'px, 0)';
+        },
+
+        /**
+         * Set size
+         */
+        _setSize: function (val) {
+        
+            if (!val) {
+                return false;
+            }
+            if (val < this.width) {
+                val = this.width;
+            }
+
+            this.inner.style.height = val + 'px';
+        },
+        _setInitSize: function(val) {
+        
+            if (!val) {
+                return false;
+            }
+            if (val < this.width) {
+                val = this.width;
+            }
+
+            this.size = val;
+            this.el.style.height = val + 'px';
+            this.inner.style.height = val + 'px';
+        },
+
+        /**
+         * Set size as top
+         */
+        _setSizeTop: function (val) {
+        
+            val = ((this.containerHeight * this.ratio) | 0) - val / 2;
+            this._setPosOriginTop();
+            this._setSize(val);
+        },
+
+        /**
+         * Set size as bottom
+         */
+        _setSizeBottom: function (val) {
+        
+            var delta = val + (this.contentHeight - this.containerHeight);
+
+            val = ((this.containerHeight * this.ratio) | 0) + delta / 2;
+            this._setPosOriginBottom();
+            this._setSize(val);
+        },
+
+        _setPosOriginTop: function () {
+        
+            this.inner.style.top = 0;
+            this.inner.style.bottom = 'auto';
+        },
+
+        _setPosOriginBottom: function () {
+        
+            this.inner.style.top = 'auto';
+            this.inner.style.bottom = 0;
         },
 
         /**
@@ -324,17 +396,19 @@
 
             var value = data.value;
 
-            if (value === null) {
+            if (value > 0) {
+                this._setSizeTop(value);
+            }
+            else if (value < -(this.contentHeight - this.containerHeight)) {
+                this._setSizeBottom(value);
+            }
+            else if (value === null) {
                 this.trigger('moveend');
                 return false;
             }
-            if (value > 0) {
-                //console.log('hoge');
+            else {
+                this._setY(value);
             }
-            else if (value < 0) {
-                //console.log('hoge2');
-            }
-            this._setY(value);
         },
         _moveStart: function () {
         
@@ -416,25 +490,39 @@
 
             this._fade(b, f);
         },
+
+        /**
+         * Create elements wapper and bar.
+         */
         _createElement: function () {
 
             var el = document.createElement('span'),
-                style = el.style;
+                inner = document.createElement('span');
 
             el.className = 'fixnel-scrollbar';
-            style.cssText = [
+            el.style.cssText = [
                 'opacity: 0;',
                 'position: absolute;',
                 'right: 1px;',
                 'top: 0;',
-                'width: 6px;',
-                'height: ' + this.size + 'px;',
+                'width: 6px;'
+            ].join('');
+
+            inner.className = 'fixnel-scrollbar-inner';
+            inner.style.cssText = [
+                'position: absolute;',
+                'left: 0;',
+                'top: 0;',
+                'width: 100%;',
                 'background-color: rgba(0, 0, 0, 0.5);',
                 'border-color: rgba(255, 255, 255, 0.3);',
                 'border-radius: 3px;'
             ].join('');
 
-            return el;
+            el.appendChild(inner);
+
+            this.el = el;
+            this.inner = inner;
         },
         _update: function () {
         
