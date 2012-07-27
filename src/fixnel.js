@@ -293,10 +293,14 @@
             var self = this;
 
             this.container.appendChild(this.el);
-            this._show();
-            this._wait(2000);
+            this._renderShow();
 
             return this;
+        },
+        _renderShow: function () {
+        
+            this._show();
+            this._wait(2000);
         },
         getEl: function () {
         
@@ -305,15 +309,16 @@
         _getContentInfo: function () {
         
             //this.flWidth = this.fl.getWidth();
-            this.width = +(this.el.style.width || '').replace('px', '');
-            this.container = this.fl.getContainer();
-            this.contentHeight = this.fl.getHeight();
+            this.width           = +(this.el.style.width || '').replace('px', '');
+            this.container       = this.fl.getContainer();
+            this.contentHeight   = this.fl.getHeight();
             this.containerHeight = this.fl.getParentHeight();
-            this.ratio = this.containerHeight / this.contentHeight;
+            this.scrollHeight    = this.contentHeight - this.containerHeight;
+            this.ratio           = this.containerHeight / this.contentHeight;
         },
         _setPos: function (pos) {
         
-            var _pos = -(pos * this.ratio);
+            var _pos = -((pos * this.ratio) | 0);
             this.el.style.webkitTransform = 'translate3d(0, ' + _pos + 'px, 0)';
         },
 
@@ -352,6 +357,7 @@
         
             val = ((this.containerHeight * this.ratio) | 0) - val / 2;
             this._setPosOriginStart();
+            this._setPos(0);
             this._setSize(val);
         },
 
@@ -360,10 +366,11 @@
          */
         _setSizeEnd: function (val) {
         
-            var delta = val + (this.contentHeight - this.containerHeight);
+            var delta = val + (this.scrollHeight);
 
             val = ((this.containerHeight * this.ratio) | 0) + delta / 2;
             this._setPosOriginEnd();
+            this._setPos(-this.scrollHeight);
             this._setSize(val);
         },
 
@@ -391,7 +398,7 @@
             if (value > 0) {
                 this._setSizeStart(value);
             }
-            else if (value < -(this.contentHeight - this.containerHeight)) {
+            else if (value < -(this.scrollHeight)) {
                 this._setSizeEnd(value);
             }
             else if (value === null) {
@@ -414,7 +421,7 @@
         },
         _moveEnd: function () {
         
-            this._wait(300);
+            this._wait(1000);
             this.moving = false;
         },
         _wait: function (delay) {
@@ -424,7 +431,6 @@
             delay || (delay = 500);
 
             clearTimeout(this.timer);
-            clearInterval(this.fadeTimer);
             this.timer = setTimeout(function () {
             
                 clearTimeout(self.timer);
@@ -520,7 +526,8 @@
         _update: function () {
         
             this._getContentInfo();
-            //TODO set new height
+            this._setInitSize((this.containerHeight * this.ratio) | 0);
+            this._renderShow();
         }
     });
 
@@ -546,11 +553,13 @@
         
             var ret;
 
+            var i = 0;
             if (this.t > this.d) {
                 return null;
             }
 
             ret = this.timingFunction(this.t++, this.b, this.c, this.d);
+
             return ret;
         }
     };
@@ -634,20 +643,20 @@
                     return null;
                 }
 
-                return ret;
+                return ret | 0;
             }
 
             oldY = this.getY();
 
             if (Math.abs(vy) <= 0) {
                 if (oldY > 0) {
-                    b = oldY;
+                    b = oldY | 0;
                     c = 0 - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
                     this.bouncing = true;
                 }
                 else if (oldY < (bottom = -this._getBottom())) {
-                    b = oldY;
+                    b = oldY | 0;
                     c = bottom - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
                     this.bouncing = true;
@@ -665,7 +674,7 @@
                 this.vy = (vy < -10) ?  -10 : vy;
             }
 
-            ret = oldY + this.getVY();
+            ret = (oldY + this.getVY()) | 0;
             return ret;
         },
         _scrolling: function () {
