@@ -1,5 +1,5 @@
 /* line 4, ../scss/main.scss */
-#container {
+.container {
   -webkit-user-select: none;
   position: relative;
   width: 200px;
@@ -8,7 +8,7 @@
   border: solid 1px #999;
 }
 /* line 12, ../scss/main.scss */
-#container #inner {
+.container .inner {
   position: absolute;
   left: 0;
   top: 0;
