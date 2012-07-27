@@ -581,6 +581,11 @@
             this.el = el;
             this.parentEl = el.parentNode;
             this.Easing = Easing;
+
+            if (this.el.clientHeight < this.parentEl.clientHeight) {
+                this.el.style.height = this.parentEl.clientHeight + 'px';
+            }
+
             this.scrollbar = new Scrollbar(this);
 
             el.className += (el.className) ? ' ' + className : className;
