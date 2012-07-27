@@ -600,6 +600,7 @@
             this.moving = false;
             this.bouncing = false;
             this.bounce = null;
+            this.trigger('moveend');
         },
 
         /**
@@ -677,6 +678,9 @@
          */
         _up: function (e) {
 
+            if (!this.dragging) {
+                return true;
+            }
             this.dragging = false;
             this._scrolling();
         },
