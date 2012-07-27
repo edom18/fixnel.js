@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.1.0
+ * @version  0.1.1
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -422,7 +422,7 @@
         },
         _moveEnd: function () {
         
-            this._wait(1000);
+            this._wait(300);
             this.moving = false;
         },
         _wait: function (delay) {
@@ -432,6 +432,7 @@
             delay || (delay = 500);
 
             clearTimeout(this.timer);
+            clearInterval(this.fadeTimer);
             this.timer = setTimeout(function () {
             
                 clearTimeout(self.timer);
