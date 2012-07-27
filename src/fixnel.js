@@ -276,19 +276,13 @@
         init: function (fl) {
         
             this.fl = fl;
-            //this.flWidth = fl.getWidth();
-            this.container = fl.getContainer();
-            this.contentHeight = fl.getHeight();
-            this.containerHeight = fl.getParentHeight();
-            this.ratio = this.containerHeight / this.contentHeight;
-            this.size = (this.containerHeight * this.ratio) | 0;
+            this._getContentInfo();
             this.el = this._createElement();
 
             this.fl.on('update', this._update, this);
             this.fl.on('move', this._move, this);
             this.fl.on('movestart', this._moveStart, this);
-
-            this.on('moveend', this._moveEnd, this);
+            this.fl.on('moveend', this._moveEnd, this);
 
             this.render();
         },
@@ -306,11 +300,26 @@
         
             return this.el;
         },
+        _getContentInfo: function () {
+        
+            //this.flWidth = this.fl.getWidth();
+            this.container = this.fl.getContainer();
+            this.contentHeight = this.fl.getHeight();
+            this.containerHeight = this.fl.getParentHeight();
+            this.ratio = this.containerHeight / this.contentHeight;
+            this.size = (this.containerHeight * this.ratio) | 0;
+        },
         _setY: function (y) {
         
             var _y = -(y * this.ratio);
             this.el.style.webkitTransform = 'translate3d(0, ' + _y + 'px, 0)';
         },
+
+        /**
+         * Move event handler.
+         * @param {EventObject} e
+         * @param {Object} data has position value.
+         */
         _move: function (e, data) {
 
             var value = data.value;
@@ -318,6 +327,12 @@
             if (value === null) {
                 this.trigger('moveend');
                 return false;
+            }
+            if (value > 0) {
+                //console.log('hoge');
+            }
+            else if (value < 0) {
+                //console.log('hoge2');
             }
             this._setY(value);
         },
@@ -423,7 +438,8 @@
         },
         _update: function () {
         
-            console.log('update');
+            this._getContentInfo();
+            //TODO set new height
         }
     });
 
