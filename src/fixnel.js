@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.1.2
+ * @version  0.1.4
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -618,22 +618,6 @@
         },
 
         /**
-         * To is dragging
-         * @return {Boolean} return true if panel is dragging.
-         */
-        isDragging: function () {
-            return this.dragging;
-        },
-
-        /**
-         * To check moving
-         * @returns {Boolean} return true if panel is moving.
-         */
-        isMoving: function () {
-            return this.moving;
-        },
-
-        /**
          * Get next value.
          * @returns {Number} next value
          */
@@ -659,7 +643,7 @@
                 return ret | 0;
             }
 
-            oldY = this.getY();
+            oldY = this._getY();
 
             if (abs(vy) <= 0) {
                 if (oldY > 0) {
@@ -774,7 +758,6 @@
             var curVY = this.vy;
 
             this.vy = this.vy - (this.vy / 30) << 0;
-
             return curVY;
         },
 
@@ -782,13 +765,15 @@
          * Get Y position
          * @returns {Number} current y position number
          */
-        getY: function () {
+        _getY: function () {
         
+            /*
             var matrix = new WebKitCSSMatrix(window.getComputedStyle(this.el).webkitTransform),
-                //x = matrix.e,
+                x = matrix.e,
                 y = matrix.f;
+            */
 
-            return y;
+            return this.y;
         },
 
         /**
@@ -797,6 +782,7 @@
          */
         _setY: function (y) {
         
+            this.y = y;
             this.el.style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
         },
 
@@ -805,7 +791,6 @@
          * @returns {Element} A parent element.
          */
         getContainer: function () {
-        
             return this.parentEl;
         },
 
@@ -814,11 +799,14 @@
          * @returns {Number} element's height
          */
         getHeight: function () {
-        
             return this.el.clientHeight;
         },
+
+        /**
+         * Get original height
+         * @returns {Number} element's original height
+         */
         getOriginalHeight: function () {
-        
             return this.el.originalHeight;
         },
 
@@ -855,12 +843,12 @@
          */
         _move: function (e) {
 
-            if (!this.isDragging()) {
+            if (!this.dragging) {
                 return true;
             }
             clearTimeout(this.stopTimer);
 
-            var oldY = this.getY(),
+            var oldY = this._getY(),
                 now = +new Date(),
                 t = now - this.prevT,
                 pageY = e.pageY,
