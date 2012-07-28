@@ -19,7 +19,18 @@
             MOVE : isTouch ? 'touchmove'  : 'mousemove',
             END  : isTouch ? 'touchend'   : 'mouseup'
         },
-        timingFunction;
+        timingFunction,
+
+        /*! ------------------------------------------------------
+            IMPORT
+        ---------------------------------------------------------- */
+        abs = Math.abs,
+        pow = Math.pow,
+        sqrt = Math.sqrt,
+        sin = Math.sin,
+        cos = Math.cos,
+        PI = Math.PI;
+
 
     /////////////////////////////////////////////
 
@@ -52,72 +63,72 @@
      */
     timingFunction = {
         easeInCubic: function (t, b, c, d) {
-            return c * Math.pow (t/d, 3) + b;
+            return c * pow (t/d, 3) + b;
         },
         easeOutCubic: function (t, b, c, d) {
-            return c * (Math.pow (t / d - 1, 3) + 1) + b;
+            return c * (pow (t / d - 1, 3) + 1) + b;
         },
         easeInOutCubic: function (t, b, c, d) {
             if ((t/=d/2) < 1) {
-                return c/2 * Math.pow (t, 3) + b;
+                return c/2 * pow (t, 3) + b;
             }
-            return c/2 * (Math.pow (t-2, 3) + 2) + b;
+            return c/2 * (pow (t-2, 3) + 2) + b;
         },
         easeInQuart: function (t, b, c, d) {
-            return c * Math.pow (t/d, 4) + b;
+            return c * pow (t/d, 4) + b;
         },
         easeOutQuart: function (t, b, c, d) {
-            return -c * (Math.pow (t/d-1, 4) - 1) + b;
+            return -c * (pow (t/d-1, 4) - 1) + b;
         },
         easeInOutQuart: function (t, b, c, d) {
             if ((t/=d/2) < 1) {
-                return c/2 * Math.pow (t, 4) + b;
+                return c/2 * pow (t, 4) + b;
             }
-            return -c/2 * (Math.pow (t-2, 4) - 2) + b;
+            return -c/2 * (pow (t-2, 4) - 2) + b;
         },
         easeInQuint: function (t, b, c, d) {
-            return c * Math.pow (t / d, 5) + b; },
+            return c * pow (t / d, 5) + b; },
         easeOutQuint: function (t, b, c, d) {
-            return c * (Math.pow (t / d-1, 5) + 1) + b;
+            return c * (pow (t / d-1, 5) + 1) + b;
         },
         easeInOutQuint: function (t, b, c, d) {
             if ((t /= d / 2) < 1) {
-                return c / 2 * Math.pow (t, 5) + b;
+                return c / 2 * pow (t, 5) + b;
             }
-            return c / 2 * (Math.pow (t - 2, 5) + 2) + b;
+            return c / 2 * (pow (t - 2, 5) + 2) + b;
         },
         easeInSine: function (t, b, c, d) {
-            return c * (1 - Math.cos(t / d * (Math.PI / 2))) + b;
+            return c * (1 - cos(t / d * (PI / 2))) + b;
         },
         easeOutSine: function (t, b, c, d) {
-            return c * Math.sin(t / d * (Math.PI / 2)) + b;
+            return c * sin(t / d * (PI / 2)) + b;
         },
         easeInOutSine: function (t, b, c, d) {
-            return c / 2 * (1 - Math.cos(Math.PI * t / d)) + b;
+            return c / 2 * (1 - cos(PI * t / d)) + b;
         },
         easeInExpo: function (t, b, c, d) {
-            return c * Math.pow(2, 10 * (t / d - 1)) + b;
+            return c * pow(2, 10 * (t / d - 1)) + b;
         },
         easeOutExpo: function (t, b, c, d) {
-            return c * (-Math.pow(2, -10 * t / d) + 1) + b;
+            return c * (-pow(2, -10 * t / d) + 1) + b;
         },
         easeInOutExpo: function (t, b, c, d) {
             if ((t/=d/2) < 1) {
-                return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+                return c / 2 * pow(2, 10 * (t - 1)) + b;
             }
-            return c / 2 * (-Math.pow(2, -10 * --t) + 2) + b;
+            return c / 2 * (-pow(2, -10 * --t) + 2) + b;
         },
         easeInCirc: function (t, b, c, d) {
-            return c * (1 - Math.sqrt(1 - (t /= d) * t)) + b;
+            return c * (1 - sqrt(1 - (t /= d) * t)) + b;
         },
         easeOutCirc: function (t, b, c, d) {
-            return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+            return c * sqrt(1 - (t = t / d - 1) * t) + b;
         },
         easeInOutCirc: function (t, b, c, d) {
             if ((t /= d / 2) < 1) {
-                return c / 2 * (1 - Math.sqrt(1 - t * t)) + b;
+                return c / 2 * (1 - sqrt(1 - t * t)) + b;
             }
-            return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
+            return c / 2 * (sqrt(1 - (t -= 2) * t) + 1) + b;
         },
         easeInQuad: function (t, b, c, d) {
             return c * (t /= d) * t + b;
@@ -585,15 +596,15 @@
         vy: 0,
         init: function (el) {
         
-            var className = 'fixnel-body';
+            var self = this,
+                className = 'fixnel-body';
 
             this.el = el;
             this.parentEl = el.parentNode;
             this.Easing = Easing;
+            this.el.originalHeight = this.getHeight();
 
-            if (this.el.clientHeight < this.parentEl.clientHeight) {
-                this.el.style.height = this.parentEl.clientHeight + 'px';
-            }
+            this._checkHeight();
 
             this.scrollbar = new Scrollbar(this);
 
@@ -602,6 +613,8 @@
             el.addEventListener(event.START, _bind(this._stop, this), false);
             doc.addEventListener(event.END, _bind(this._up, this), false);
             doc.addEventListener(event.MOVE, _bind(this._move, this), false);
+
+            win.addEventListener('resize', _bind(this._update, this), false);
         },
 
         /**
@@ -648,7 +661,7 @@
 
             oldY = this.getY();
 
-            if (Math.abs(vy) <= 0) {
+            if (abs(vy) <= 0) {
                 if (oldY > 0) {
                     b = oldY | 0;
                     c = 0 - b;
@@ -677,6 +690,17 @@
             ret = (oldY + this.getVY()) | 0;
             return ret;
         },
+        _checkHeight: function () {
+        
+            var parentHeight = this.getParentHeight();
+
+            if (this.getOriginalHeight() < parentHeight) {
+                this.el.style.height = parentHeight + 'px';
+            }
+            else {
+                this.el.style.height = 'auto';
+            }
+        },
         _scrolling: function () {
         
             var self = this;
@@ -697,7 +721,7 @@
                     return false;
                 }
 
-                self.setY(value);
+                self._setY(value);
             }, this.FPS);
         },
 
@@ -728,6 +752,87 @@
             }, 100);
         },
 
+
+        /*! -----------------------------------------------------------
+            GETTER & SETTER
+        --------------------------------------------------------------- */
+        /**
+         * Get bottom
+         * @returns {Number} return the bottom number
+         */
+        _getBottom: function () {
+        
+            return this.getHeight() - this.getParentHeight();
+        },
+
+        /**
+         * Get velocity of Y
+         * @returns {Number} current velocity of y.
+         */
+        getVY: function () {
+        
+            var curVY = this.vy;
+
+            this.vy = this.vy - (this.vy / 30) << 0;
+
+            return curVY;
+        },
+
+        /**
+         * Get Y position
+         * @returns {Number} current y position number
+         */
+        getY: function () {
+        
+            var matrix = new WebKitCSSMatrix(window.getComputedStyle(this.el).webkitTransform),
+                //x = matrix.e,
+                y = matrix.f;
+
+            return y;
+        },
+
+        /**
+         * Set y position
+         * @param {Number} y set the number.
+         */
+        _setY: function (y) {
+        
+            this.el.style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
+        },
+
+        /**
+         * Get container
+         * @returns {Element} A parent element.
+         */
+        getContainer: function () {
+        
+            return this.parentEl;
+        },
+
+        /**
+         * Get height
+         * @returns {Number} element's height
+         */
+        getHeight: function () {
+        
+            return this.el.clientHeight;
+        },
+        getOriginalHeight: function () {
+        
+            return this.el.originalHeight;
+        },
+
+        /**
+         * Get parent height
+         * @returns {Number} return the parent element height.
+         */
+        getParentHeight: function () {
+            return this.parentEl.clientHeight;
+        },
+
+        /*! -----------------------------------------------------------
+            EVENTS
+        --------------------------------------------------------------- */
         /**
          * Mouse down event handler
          * @param {EventObject} e
@@ -770,7 +875,7 @@
             this.vy = -this.accY * t;
 
             //set position
-            this.setY((oldY -= dist));
+            this._setY((oldY -= dist));
 
             this.trigger('move', {
                 value: oldY,
@@ -795,84 +900,10 @@
             this.dragging = false;
             this._scrolling();
         },
+        _update: function (e) {
 
-        /**
-         * Get parent height
-         * @returns {Number} parent element's height
-         */
-        _getParentHeight: function () {
-            return this.parentEl.clientHeight;
-        },
-
-        /**
-         * Get bottom
-         * @returns {Number} return the bottom number
-         */
-        _getBottom: function () {
-        
-            return this.getHeight() - this._getParentHeight();
-        },
-
-        /**
-         * Get velocity of Y
-         * @returns {Number} current velocity of y.
-         */
-        getVY: function () {
-        
-            var curVY = this.vy;
-
-            this.vy = this.vy - (this.vy / 30) << 0;
-
-            return curVY;
-        },
-
-        /**
-         * Get Y position
-         * @returns {Number} current y position number
-         */
-        getY: function () {
-        
-            var matrix = new WebKitCSSMatrix(window.getComputedStyle(this.el).webkitTransform),
-                //x = matrix.e,
-                y = matrix.f;
-
-            return y;
-        },
-
-        /**
-         * Set y position
-         * @param {Number} y set the number.
-         */
-        setY: function (y) {
-        
-            this.el.style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
-        },
-
-        /**
-         * Get container
-         * @returns {Element} A parent element.
-         */
-        getContainer: function () {
-        
-            return this.parentEl;
-        },
-
-        /**
-         * Get height
-         * @returns {Number} element's height
-         */
-        getHeight: function () {
-        
-            return this.el.clientHeight;
-        },
-
-        /**
-         * Get parent height
-         * @returns {Number} return the parent element height.
-         */
-        getParentHeight: function () {
-        
-            return this.parentEl.clientHeight;
+            this._checkHeight();
+            this.trigger('update');
         }
     });
 
