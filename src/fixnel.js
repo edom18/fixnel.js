@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.1.4
+ * @version  0.1.5
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -604,6 +604,7 @@
             this.Easing = Easing;
             this.el.originalHeight = this.getHeight();
 
+            this._initSettings();
             this._checkHeight();
 
             this.scrollbar = new Scrollbar(this);
@@ -673,6 +674,11 @@
 
             ret = (oldY + this.getVY()) | 0;
             return ret;
+        },
+        _initSettings: function () {
+        
+            this.el.style.webkitTextSizeAdjust = 'none';
+            this.el.style.textSizeAdjust = 'none';
         },
         _checkHeight: function () {
         
