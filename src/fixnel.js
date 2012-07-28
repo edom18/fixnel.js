@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.1.5
+ * @version  0.1.6
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -594,6 +594,8 @@
         accY: 0,
         //vx: 0,
         vy: 0,
+        //x: 0,
+        y: 0,
         init: function (el) {
         
             var self = this,
@@ -838,7 +840,7 @@
             this.trigger('movestart');
 
             //this.prevX = e.pageX;
-            this.prevY = e.pageY;
+            this.prevY = (e.touches) ? e.touches[0].pageY : e.pageY;
             this.prevT = +new Date();
         },
 
@@ -857,7 +859,7 @@
             var oldY = this._getY(),
                 now = +new Date(),
                 t = now - this.prevT,
-                pageY = e.pageY,
+                pageY = (e.touches) ? e.touches[0].pageY : e.pageY,
                 dist = this.prevY - pageY,
                 accY = dist / (t || (t = 1)),
                 d = (accY - this.prevAccY) / t;
