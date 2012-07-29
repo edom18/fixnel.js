@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.1.6
+ * @version  0.1.7
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -677,22 +677,44 @@
             ret = (oldY + this.getVY()) | 0;
             return ret;
         },
+
+        /**
+         * Do initial settings
+         */
         _initSettings: function () {
         
             this.el.style.webkitTextSizeAdjust = 'none';
             this.el.style.textSizeAdjust = 'none';
         },
+
+        /**
+         * To check height of parent and element.
+         */
         _checkHeight: function () {
         
             var parentHeight = this.getParentHeight();
 
             if (this.getOriginalHeight() < parentHeight) {
-                this.el.style.height = parentHeight + 'px';
+                this._setHeight(parentHeight);
             }
             else {
-                this.el.style.height = 'auto';
+                this._setHeight('auto');
             }
         },
+
+        /**
+         * To check overflow when update elements.
+         */
+        _checkOverflow: function () {
+        
+            if (-this._getBottom() > this._getY()) {
+                this._setY(-(this.getHeight() - this.getParentHeight()));
+            }
+        },
+
+        /**
+         * Scrolling function.
+         */
         _scrolling: function () {
         
             var self = this;
@@ -767,6 +789,19 @@
 
             this.vy = this.vy - (this.vy / 30) << 0;
             return curVY;
+        },
+
+        _setHeight: function (val) {
+
+            if (!val) {
+                return false;
+            }
+            else if (Object.prototype.toString.call(val) === '[object String]') {
+                this.el.style.height = val;
+                return;
+            }
+
+            this.el.style.height = val + 'px';
         },
 
         /**
@@ -899,6 +934,7 @@
         _update: function (e) {
 
             this._checkHeight();
+            this._checkOverflow();
             this.trigger('update');
         }
     });
