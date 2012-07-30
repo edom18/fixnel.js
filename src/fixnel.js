@@ -290,7 +290,7 @@
 
             this._createElement();
             this._getContentInfo();
-            this._setInitSize((this.containerHeight * this.ratio) | 0);
+            this._setInitSize();
 
             this.fl.on('update', this._update, this);
             this.fl.on('move', this._move, this);
@@ -329,7 +329,14 @@
         },
         _setPos: function (pos) {
         
-            var _pos = -((pos * this.ratio) | 0);
+            if (!pos) {
+                return false;
+            }
+
+            var _pos;
+
+            this._pos = pos;
+            _pos = -((pos * this.ratio) | 0);
             this.el.style.webkitTransform = 'translate3d(0, ' + _pos + 'px, 0)';
         },
 
@@ -347,8 +354,9 @@
 
             this.inner.style.height = val + 'px';
         },
-        _setInitSize: function(val) {
+        _setInitSize: function() {
         
+            var val = (this.containerHeight * this.ratio) | 0;
             if (!val) {
                 return false;
             }
@@ -537,7 +545,8 @@
         _update: function () {
         
             this._getContentInfo();
-            this._setInitSize((this.containerHeight * this.ratio) | 0);
+            this._setInitSize();
+            this._setPos(this._pos);
             this._renderShow();
         }
     });
@@ -726,10 +735,6 @@
             
                 var value = self.getValue();
                 
-                self.trigger('move', {
-                    value: value,
-                    direction: 'y'
-                });
                 if (value === null) {
                     self._stopScrolling();
                     return false;
@@ -827,6 +832,11 @@
         
             this.y = y;
             this.el.style.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
+
+            this.trigger('move', {
+                value: y,
+                direction: 'y'
+            });
         },
 
         /**
@@ -907,11 +917,6 @@
 
             //set position
             this._setY((oldY -= dist));
-
-            this.trigger('move', {
-                value: oldY,
-                direction: 'y'
-            });
 
             //set previous values.
             this.prevT    = now;
