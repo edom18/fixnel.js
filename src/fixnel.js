@@ -303,7 +303,11 @@
             var b = 0,
                 f = 1;
 
+            this._clearTimer();
             if (this.fadeState === Fader.mode.FADE_IN) {
+                return false;
+            }
+            if (this._fadeCheck(f)) {
                 return false;
             }
 
@@ -315,23 +319,29 @@
             var b = 1,
                 f = 0;
 
+            this._clearTimer();
             if (this.fadeState === Fader.mode.FADE_OUT) {
+                return false;
+            }
+            if (this._fadeCheck(f)) {
                 return false;
             }
 
             this._startFadeOut();
             this._fade(b, f);
         },
-        _startFadeIn: function () {
+        _fadeCheck: function (val) {
         
+            return (+this._getOpacity() === val);
+        },
+        _clearTimer: function () {
             clearTimeout(this.waitTimer);
             clearTimeout(this.fadeTimer);
+        },
+        _startFadeIn: function () {
             this.fadeState = Fader.mode.FADE_IN;
         },
         _startFadeOut: function () {
-        
-            clearTimeout(this.waitTimer);
-            clearTimeout(this.fadeTimer);
             this.fadeState = Fader.mode.FADE_OUT;
         },
         _fade: function (b, f, d) {
@@ -386,6 +396,9 @@
             this.waitTimer = setTimeout(function () {
             
                 self.waitTimer = null;
+                if (self._getOpacity() === 0) {
+                    return false;
+                }
                 self.fadeOut();
             }, ms);
         },
@@ -422,6 +435,7 @@
             this._createElement();
             this._getContentInfo();
             this._setInitSize();
+            this._fader = new Fader(this);
 
             this.fl.on('update', this._update, this);
             this.fl.on('move', this._move, this);
@@ -575,69 +589,13 @@
             this.moving = false;
         },
         _wait: function (delay) {
-        
-            var self = this;
-
-            delay || (delay = 500);
-
-            clearTimeout(this.timer);
-            this.timer = setTimeout(function () {
-            
-                clearTimeout(self.timer);
-                self.timer = null;
-                if (!self.moving) {
-                    self._hide();
-                }
-            }, delay);
-        },
-        _fade: function (b, f) {
-        
-            var self = this,
-                t = 0,
-                _b = b,
-                _f = f,
-                c = 0,
-                d = this.DURATION,
-                easing = this.easing,
-                style = this.getEl().style;
-
-            if (easing) {
-                _b = easing.getValue() || b;
-            }
-            c = _f - _b;
-
-            this.easing = easing = new this.Easing('easeOutQuad', t, b, c, d);
-
-            clearInterval(this.fadeTimer);
-            (function ease() {
-
-                var val = easing.getValue();
-
-                if (val === null) {
-                    self.easing = null;
-                    clearTimeout(self.fadeTimer);
-                    self.fadeTimer = null;
-                    style.opacity = f;
-                    return false;
-                }
-
-                style.opacity = val;
-                self.fadeTimer = setTimeout(ease, self.FPS);
-            }());
+            this._fader.delayFadeOut(delay);
         },
         _hide: function () {
-        
-            var b = 1,
-                f = 0;
-
-            this._fade(b, f);
+            this._fader.fadeOut();
         },
         _show: function () {
-        
-            var b = 0,
-                f = 1;
-
-            this._fade(b, f);
+            this._fader.fadeIn();
         },
 
         /**
