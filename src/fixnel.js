@@ -585,7 +585,7 @@
         },
         _moveEnd: function () {
         
-            this._wait(1000);
+            this._wait(300);
             this.moving = false;
         },
         _wait: function (delay) {
