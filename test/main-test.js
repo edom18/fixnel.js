@@ -11,21 +11,4 @@
             return test;
         };
     }
-
-    var fader = new Fader(new Dummy());
-
-    var flg = false;
-    test.addEventListener('click', function () {
-
-        if (flg) {
-            flg = !flg;
-            fader.fadeIn();
-        }
-        else {
-            flg = !flg;
-            fader.fadeOut();
-        }
-    }, false);
-
-
 }(this, document));
