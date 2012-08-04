@@ -273,6 +273,137 @@
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * @class Fader
+     * Manage the fade in/out and function.
+     * @param {ScrollbarObject} scbar
+     */
+    function Fader() {
+        this.init.apply(this, arguments);
+    }
+    Fader.mode = {
+        NOT_FADE: 0, 
+        FADE_OUT: 1, 
+        FADE_IN : 2, 
+        WAIT    : 3 
+    };
+    Fader.DEFAULT_DURATION = 30;
+    Fader.DEFAULT_EASING = 'easeOutQuad';
+    Fader.DEFAULT_DELAY = 500;
+    Fader.FPS = 32;
+    Fader.prototype = {
+        Easing: Easing,
+        init: function (scbar) {
+        
+            this.scbar     = scbar;
+            this.target    = scbar.getEl();
+            this.fadeState = Fader.mode.NOT_FADE;
+        },
+        fadeIn: function () {
+        
+            var b = 0,
+                f = 1;
+
+            if (this.fadeState === Fader.mode.FADE_IN) {
+                return false;
+            }
+
+            this._startFadeIn();
+            this._fade(b, f);
+        },
+        fadeOut: function () {
+        
+            var b = 1,
+                f = 0;
+
+            if (this.fadeState === Fader.mode.FADE_OUT) {
+                return false;
+            }
+
+            this._startFadeOut();
+            this._fade(b, f);
+        },
+        _startFadeIn: function () {
+        
+            clearTimeout(this.waitTimer);
+            clearTimeout(this.fadeTimer);
+            this.fadeState = Fader.mode.FADE_IN;
+        },
+        _startFadeOut: function () {
+        
+            clearTimeout(this.waitTimer);
+            clearTimeout(this.fadeTimer);
+            this.fadeState = Fader.mode.FADE_OUT;
+        },
+        _fade: function (b, f, d) {
+        
+            var self = this,
+                t  = 0,
+                _b = b,
+                _f = f,
+                c  = 0,
+                _d = d || Fader.DEFAULT_DURATION,
+
+                //shortcut
+                easing = this.easing,
+                style = this.target.style,
+                FPS = Fader.FPS;
+
+            if (easing) {
+                _b = easing.getValue() || b;
+            }
+            c = _f - _b;
+
+            this.easing = easing = new this.Easing(Fader.DEFAULT_EASING, t, _b, c, _d);
+
+            clearTimeout(this.fadeTimer);
+            (function ease() {
+
+                var val = easing.getValue();
+
+                if (val === null) {
+                    self.easing = null;
+                    clearTimeout(self.fadeTimer);
+                    self.fadeTimer = null;
+                    self._setOpacity(f);
+                    self._fadeEnd();
+                    return false;
+                }
+
+                self._setOpacity(val);
+                self.fadeTimer = setTimeout(ease, FPS);
+            }());
+        },
+        _fadeEnd: function () {
+            this.fadeState = Fader.mode.NOT_FADE;
+        },
+        delayFadeOut: function (ms) {
+        
+            var self = this;
+
+            ms || (ms = Fader.DEFAULT_DELAY);
+
+            clearTimeout(this.waitTimer);
+            this.waitTimer = setTimeout(function () {
+            
+                self.waitTimer = null;
+                self.fadeOut();
+            }, ms);
+        },
+        _getOpacity: function () {
+            return this.target.style.opacity;
+        },
+        _setOpacity: function (val) {
+        
+            if (!val) {
+                return false;
+            }
+            this.target.style.opacity = val;
+        }
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
      * @class Scrollbar
      * To create scroll bar.
      * @param {FixnelObject} fl
@@ -950,4 +1081,5 @@
 
     //for test.
     exports.Easing = Easing;
+    exports.Fader  = Fader;
 }(this, document, this));
