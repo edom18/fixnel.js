@@ -969,7 +969,6 @@
          */
         _down: function (e) {
         
-            e.preventDefault();
             this.dragging = true;
             this.trigger('movestart');
 
@@ -985,6 +984,7 @@
          */
         _move: function (e) {
 
+            e.preventDefault();
             if (!this.dragging) {
                 return true;
             }
