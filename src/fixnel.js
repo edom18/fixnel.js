@@ -718,6 +718,52 @@
             win.addEventListener('resize', _bind(this._update, this), false);
         },
 
+        moveTo: function (y) {
+        
+            var self = this,
+                bottom,
+                easing,
+                timer,
+                t, b, f, c, d;
+
+            if (y !== 0 && !y) {
+                return;
+            }
+
+            y *= -1;
+
+            if (y > 0) {
+                y = 0;
+            }
+            else if (y < (bottom = -this._getBottom())) {
+                y = bottom;
+            }
+
+            t = 0;
+            b = this._getY();
+            c = y - b;
+            d = 10;
+            easing = new this.Easing('easeOutExpo', t, b, c, d);
+            this._autoMoving = true;
+            
+            (function ease() {
+
+                var val = easing.getValue();
+
+                if (val === null) {
+                    easing = null;
+                    clearTimeout(timer);
+                    self._setY(y);
+                    self._autoMoving = false;
+                    return null;
+                }
+
+                self._setY(val);
+
+                timer = setTimeout(ease, 16);
+            }());
+        },
+
         /**
          * Get next value.
          * @returns {Number} next value
@@ -969,6 +1015,10 @@
          */
         _down: function (e) {
         
+            if (this._autoMoving) {
+                return false;
+            }
+
             if (!!this.bouncing) {
                 if (this._getY() < 0) {
                     this._setY(-this._getBottom());
@@ -978,6 +1028,7 @@
                 }
                 this._stopScrolling();
             }
+            
             this.dragging = true;
             this.trigger('movestart');
 
