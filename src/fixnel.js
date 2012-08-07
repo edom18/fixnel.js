@@ -969,6 +969,15 @@
          */
         _down: function (e) {
         
+            if (!!this.bouncing) {
+                if (this._getY() < 0) {
+                    this._setY(-this._getBottom());
+                }
+                else {
+                    this._setY(0);
+                }
+                this._stopScrolling();
+            }
             this.dragging = true;
             this.trigger('movestart');
 
