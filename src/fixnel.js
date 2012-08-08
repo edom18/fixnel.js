@@ -715,7 +715,7 @@
             doc.addEventListener(event.END, _bind(this._up, this), false);
             doc.addEventListener(event.MOVE, _bind(this._move, this), false);
 
-            win.addEventListener('resize', _bind(this._update, this), false);
+            win.addEventListener('resize', _bind(this.update, this), false);
         },
 
         moveTo: function (y) {
@@ -995,6 +995,16 @@
          * @returns {Number} element's original height
          */
         getOriginalHeight: function () {
+
+            var oldHeight = this.getHeight(),
+                curHeight;
+
+            this.el.style.height = 'auto';
+
+            if (this.el.originalHeight !== (curHeight = this.getHeight())) {
+                this.el.originalHeight = curHeight;
+            }
+
             return this.el.originalHeight;
         },
 
@@ -1085,7 +1095,7 @@
             this.dragging = false;
             this._scrolling();
         },
-        _update: function (e) {
+        update: function (e) {
 
             this._checkHeight();
             this._checkOverflow();
