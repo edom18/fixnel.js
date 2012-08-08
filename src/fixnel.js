@@ -718,13 +718,15 @@
             win.addEventListener('resize', _bind(this.update, this), false);
         },
 
-        moveTo: function (y) {
+        moveTo: function (y, opt) {
         
             var self = this,
                 bottom,
                 easing,
                 timer,
                 t, b, f, c, d;
+
+            opt || (opt = {});
 
             if (y !== 0 && !y) {
                 return;
@@ -737,6 +739,11 @@
             }
             else if (y < (bottom = -this._getBottom())) {
                 y = bottom;
+            }
+
+            if (opt.animOff) {
+                this._setY(y);
+                return false;
             }
 
             t = 0;
@@ -850,7 +857,6 @@
          * To check overflow when update elements.
          */
         _checkOverflow: function () {
-        
             if (-this._getBottom() > this._getY()) {
                 this._setY(-(this.getHeight() - this.getParentHeight()));
             }
@@ -999,6 +1005,7 @@
             var oldHeight = this.getHeight(),
                 curHeight;
 
+            //temporary setting to `auto`.
             this.el.style.height = 'auto';
 
             if (this.el.originalHeight !== (curHeight = this.getHeight())) {
