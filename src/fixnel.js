@@ -1073,7 +1073,8 @@
                 pageY = (e.touches) ? e.touches[0].pageY : e.pageY,
                 dist = this.prevY - pageY,
                 accY = dist / (t || (t = 1)),
-                d = (accY - this.prevAccY) / t;
+                d = (accY - this.prevAccY) / t,
+                nextPos = oldY - dist;
 
             //calculate Acceleration.
             this.accY += d * t;
@@ -1081,8 +1082,12 @@
             //calculate Velocity.
             this.vy = -this.accY * t;
 
+            if (nextPos > 0 || nextPos < -this._getBottom()) {
+                nextPos = oldY - ((dist / 2) | 0);
+            }
+
             //set position
-            this._setY((oldY -= dist));
+            this._setY(nextPos);
 
             //set previous values.
             this.prevT    = now;
