@@ -16,15 +16,15 @@ Fixnel.directionType.[VERTICAL | HORIZONTAL | BOTH]のいずれかを指定し�
 ## Example
 var ele = document.getElementById('[target ID]');
 
-//only vertical
-var fixnel = new Fixnel(ele);
+//only vertical  
+`var fixnel = new Fixnel(ele);`
 
-//only horizontal
-var fixnel = new Fixnel(ele, {
+//only horizontal  
+`var fixnel = new Fixnel(ele, {
     direction: Fixnel.directionType.HORIZONTAL
-});
+});`
 
-//both
-var fixnel = new Fixnel(ele, {
+//both  
+`var fixnel = new Fixnel(ele, {
     direction: Fixnel.directionType.BOTH
-});
+});`
