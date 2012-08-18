@@ -2,8 +2,6 @@
 
 fixnel.jsは、iPhoneのUIである慣性スクロールを再現したJSです。  
 位置固定のfixとpanelを合成した造語です。  
-現状ではまだ縦スクロールにしか対応していません。  
-さらにまだバグがあるので、とりあえずの公開です。
 
 ## Syntax
 Fixnel(element, [options]);
