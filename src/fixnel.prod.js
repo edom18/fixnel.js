@@ -304,14 +304,10 @@
                 f = 1;
 
             this._clearTimer();
-            if (this.fadeState === Fader.mode.FADE_IN) {
-                return false;
-            }
             if (this._fadeCheck(f)) {
                 return false;
             }
 
-            this._startFadeIn();
             this._fade(b, f, 1);
         },
         fadeOut: function () {
@@ -320,14 +316,10 @@
                 f = 0;
 
             this._clearTimer();
-            if (this.fadeState === Fader.mode.FADE_OUT) {
-                return false;
-            }
             if (this._fadeCheck(f)) {
                 return false;
             }
 
-            this._startFadeOut();
             this._fade(b, f);
         },
         _fadeCheck: function (val) {
@@ -338,12 +330,12 @@
             clearTimeout(this.waitTimer);
             clearTimeout(this.fadeTimer);
         },
-        _startFadeIn: function () {
-            this.fadeState = Fader.mode.FADE_IN;
-        },
-        _startFadeOut: function () {
-            this.fadeState = Fader.mode.FADE_OUT;
-        },
+        //_startFadeIn: function () {
+        //    this.fadeState = Fader.mode.FADE_IN;
+        //},
+        //_startFadeOut: function () {
+        //    this.fadeState = Fader.mode.FADE_OUT;
+        //},
         _fade: function (b, f, d) {
         
             var self = this,
