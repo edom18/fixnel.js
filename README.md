@@ -6,7 +6,7 @@ fixnel.jsは、iPhoneのUIである慣性スクロールを再現したJSです�
 さらにまだバグがあるので、とりあえずの公開です。
 
 ## Syntax
-Fxinel(element, [options]);
+Fixnel(element, [options]);
 
 ### Options
 {direction: 'which direction'}
