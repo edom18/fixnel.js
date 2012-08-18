@@ -899,12 +899,29 @@
     function Fixnel(el, opt) {
         this.init.apply(this, arguments);
     }
+    Fixnel.directionType = {
+        VERTICAL: 'vertical',
+        HORIZONTAL: 'horizontal',
+        BOTH: 'both'
+    };
     Fixnel.prototype = {
         init: function (el, opt) {
 
             opt || (opt = {});
-            this._vfixnel = new VFixnel(el);
-            this._hfixnel = new HFixnel(el);
+
+            if (opt.direction === Fixnel.directionType.BOTH) {
+                this._vfixnel = new VFixnel(el);
+                this._hfixnel = new HFixnel(el);
+            }
+            else if (opt.direction === Fixnel.directionType.HORIZONTAL) {
+                this._hfixnel = new HFixnel(el);
+            }
+            else if (opt.direction === Fixnel.directionType.VERTICAL) {
+                this._vfixnel = new VFixnel(el);
+            }
+            else {
+                this._vfixnel = new VFixnel(el);
+            }
         }
     };
 

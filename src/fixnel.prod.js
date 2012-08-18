@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.2.0
+ * @version  0.3.0
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -275,7 +275,7 @@
     /**
      * @class Fader
      * Manage the fade in/out and function.
-     * @param {HScrollbarObject} scbar
+     * @param {VScrollbarObject} scbar
      */
     function Fader() {
         this.init.apply(this, arguments);
@@ -286,9 +286,9 @@
         FADE_IN : 2, 
         WAIT    : 3 
     };
-    Fader.DEFAULT_DURATION = 30;
+    Fader.DEFAULT_DURATION = 10;
     Fader.DEFAULT_EASING = 'easeOutQuad';
-    Fader.DEFAULT_DELAY = 500;
+    Fader.DEFAULT_DELAY = 400;
     Fader.FPS = 32;
     Fader.prototype = {
         Easing: Easing,
@@ -312,7 +312,7 @@
             }
 
             this._startFadeIn();
-            this._fade(b, f);
+            this._fade(b, f, 1);
         },
         fadeOut: function () {
         
@@ -371,7 +371,6 @@
                 var val = easing.getValue();
 
                 if (val === null) {
-                    console.log(f);
                     self.easing = null;
                     clearTimeout(self.fadeTimer);
                     self.fadeTimer = null;
@@ -407,7 +406,8 @@
             return this.target.style.opacity;
         },
         _setOpacity: function (val) {
-            if (isNaN(val) && !val) {
+        
+            if (!val) {
                 return false;
             }
             this.target.style.opacity = val;
@@ -415,6 +415,232 @@
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @class VScrollbar
+     * To create scroll bar.
+     * @param {VFixnelObject} fl
+     */
+    function VScrollbar() {
+        this.init.apply(this, arguments);
+    }
+    VScrollbar.prototype = copyClone({}, EventDispatcher.prototype, {
+        FPS: 1000 / 60,
+        DURATION: 30,
+        Easing: Easing,
+        init: function (fl) {
+        
+            this.fl = fl;
+
+            this._createElement();
+            this._getContentInfo();
+            this._setInitSize();
+            this._fader = new Fader(this);
+
+            this.fl.on('update', this._update, this);
+            this.fl.on('move', this._move, this);
+            this.fl.on('movestart', this._moveStart, this);
+            this.fl.on('moveend', this._moveEnd, this);
+
+            this.render();
+        },
+        render: function () {
+        
+            var self = this;
+
+            this.container.appendChild(this.el);
+            this._renderShow();
+
+            return this;
+        },
+        _renderShow: function () {
+        
+            this._show();
+            this._wait(2000);
+        },
+        getEl: function () {
+        
+            return this.el;
+        },
+        _getContentInfo: function () {
+        
+            //this.flWidth = this.fl.getWidth();
+            this.width           = +(this.el.style.width || '').replace('px', '');
+            this.container       = this.fl.getContainer();
+            this.contentHeight   = this.fl.getHeight();
+            this.containerHeight = this.fl.getParentHeight();
+            this.scrollHeight    = this.contentHeight - this.containerHeight;
+            this.ratio           = this.containerHeight / this.contentHeight;
+        },
+        _setPos: function (pos) {
+        
+            if (!pos) {
+                return false;
+            }
+
+            var _pos;
+
+            this._pos = pos;
+            _pos = -((pos * this.ratio) | 0);
+            this.el.style.webkitTransform = 'translate3d(0, ' + _pos + 'px, 0)';
+        },
+
+        /**
+         * Set size
+         */
+        _setSize: function (val) {
+        
+            if (!val) {
+                return false;
+            }
+            if (val < this.width) {
+                val = this.width;
+            }
+
+            this.inner.style.height = val + 'px';
+        },
+        _setInitSize: function() {
+        
+            var val = (this.containerHeight * this.ratio) | 0;
+            if (!val) {
+                return false;
+            }
+            if (val < this.width) {
+                val = this.width;
+            }
+
+            this.size = val;
+            this.el.style.height = val + 'px';
+            this.inner.style.height = val + 'px';
+        },
+
+        /**
+         * Set size as top
+         */
+        _setSizeStart: function (val) {
+        
+            val = ((this.containerHeight * this.ratio) | 0) - val / 2;
+            this._setPosOriginStart();
+            this._setPos(0);
+            this._setSize(val);
+        },
+
+        /**
+         * Set size as bottom
+         */
+        _setSizeEnd: function (val) {
+        
+            var delta = val + (this.scrollHeight);
+
+            val = ((this.containerHeight * this.ratio) | 0) + delta / 2;
+            this._setPosOriginEnd();
+            this._setPos(-this.scrollHeight);
+            this._setSize(val);
+        },
+
+        _setPosOriginStart: function () {
+        
+            this.inner.style.top = 0;
+            this.inner.style.bottom = 'auto';
+        },
+
+        _setPosOriginEnd: function () {
+        
+            this.inner.style.top = 'auto';
+            this.inner.style.bottom = 0;
+        },
+
+        /**
+         * Move event handler.
+         * @param {EventObject} e
+         * @param {Object} data has position value.
+         */
+        _move: function (e, data) {
+
+            var value = data.value;
+
+            if (value > 0) {
+                this._setSizeStart(value);
+            }
+            else if (value < -(this.scrollHeight)) {
+                this._setSizeEnd(value);
+            }
+            else if (value === null) {
+                this.trigger('moveend');
+                return false;
+            }
+            else {
+                this._setPos(value);
+            }
+        },
+        _moveStart: function () {
+        
+            clearTimeout(this.timer);
+            if (this.moving || this.timer) {
+                return false;
+            }
+            this.timer = null;
+            this.moving = true;
+            this._show();
+        },
+        _moveEnd: function () {
+        
+            this._wait(300);
+            this.moving = false;
+        },
+        _wait: function (delay) {
+            this._fader.delayFadeOut(delay);
+        },
+        _hide: function () {
+            this._fader.fadeOut();
+        },
+        _show: function () {
+            this._fader.fadeIn();
+        },
+
+        /**
+         * Create elements wapper and bar.
+         */
+        _createElement: function () {
+
+            var el = document.createElement('span'),
+                inner = document.createElement('span');
+
+            el.className = 'fixnel-scrollbar';
+            el.style.cssText = [
+                'opacity: 0;',
+                'position: absolute;',
+                'right: 1px;',
+                'top: 0;',
+                'width: 6px;'
+            ].join('');
+
+            inner.className = 'fixnel-scrollbar-inner';
+            inner.style.cssText = [
+                'position: absolute;',
+                'left: 0;',
+                'top: 0;',
+                'width: 100%;',
+                'background-color: rgba(0, 0, 0, 0.5);',
+                'border-color: rgba(255, 255, 255, 0.3);',
+                'border-radius: 3px;'
+            ].join('');
+
+            el.appendChild(inner);
+
+            this.el = el;
+            this.inner = inner;
+        },
+        _update: function () {
+        
+            this._getContentInfo();
+            this._setInitSize();
+            this._setPos(this._pos);
+            this._renderShow();
+        }
+    });
+
+    ////////////////////////////////////////////////////////////////////////////
 
     /**
      * @class HScrollbar
@@ -667,6 +893,470 @@
             return ret;
         }
     };
+
+    ////////////////////////////////////////////////////////////////////
+
+    function Fixnel(el, opt) {
+        this.init.apply(this, arguments);
+    }
+    Fixnel.directionType = {
+        VERTICAL: 'vertical',
+        HORIZONTAL: 'horizontal',
+        BOTH: 'both'
+    };
+    Fixnel.prototype = {
+        init: function (el, opt) {
+
+            opt || (opt = {});
+
+            if (opt.direction === Fixnel.directionType.BOTH) {
+                this._vfixnel = new VFixnel(el);
+                this._hfixnel = new HFixnel(el);
+            }
+            else if (opt.direction === Fixnel.directionType.HORIZONTAL) {
+                this._hfixnel = new HFixnel(el);
+            }
+            else if (opt.direction === Fixnel.directionType.VERTICAL) {
+                this._vfixnel = new VFixnel(el);
+            }
+            else {
+                this._vfixnel = new VFixnel(el);
+            }
+        }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    function VFixnel(el) {
+        this.init.apply(this, arguments);
+    }
+
+    VFixnel.prototype = copyClone({}, EventDispatcher.prototype, {
+        dragging: false,
+        DURATION: 30,
+        FPS: 1000 / 60,
+        prevAccY: 0,
+        prevY: 0,
+        prevT: 0,
+        accY: 0,
+        vy: 0,
+        y: 0,
+        init: function (el) {
+        
+            var self = this,
+                className = 'fixnel-body';
+
+            this.el = el;
+            this.parentEl = el.parentNode;
+            this.Easing = Easing;
+            this.el.originalHeight = this.getHeight();
+
+            this._initSettings();
+            this._checkHeight();
+
+            this.scrollbar = new VScrollbar(this);
+
+            el.className += (el.className) ? ' ' + className : className;
+            el.addEventListener(event.START, _bind(this._down, this), false);
+            el.addEventListener(event.START, _bind(this._stop, this), false);
+            doc.addEventListener(event.END, _bind(this._up, this), false);
+            doc.addEventListener(event.MOVE, _bind(this._move, this), false);
+
+            win.addEventListener('resize', _bind(this.update, this), false);
+        },
+
+        moveTo: function (y, opt) {
+        
+            var self = this,
+                bottom,
+                easing,
+                timer,
+                t, b, f, c, d;
+
+            opt || (opt = {});
+
+            if (y !== 0 && !y) {
+                return;
+            }
+
+            y *= -1;
+
+            if (y > 0) {
+                y = 0;
+            }
+            else if (y < (bottom = -this._getBottom())) {
+                y = bottom;
+            }
+
+            if (opt.animOff) {
+                this._setY(y);
+                return false;
+            }
+
+            t = 0;
+            b = this._getY();
+            c = y - b;
+            d = 10;
+            easing = new this.Easing('easeOutExpo', t, b, c, d);
+            this._autoMoving = true;
+            
+            (function ease() {
+
+                var val = easing.getValue();
+
+                if (val === null) {
+                    easing = null;
+                    clearTimeout(timer);
+                    self._setY(y);
+                    self._autoMoving = false;
+                    return null;
+                }
+
+                self._setY(val);
+
+                timer = setTimeout(ease, 16);
+            }());
+        },
+
+        /**
+         * Get next value.
+         * @returns {Number} next value
+         */
+        getValue: function () {
+        
+            var oldY,
+                bottom,
+                t = 0,
+                b = 0,
+                c = 0,
+                d = this.DURATION,
+                vy = this.vy,
+                ret = 0;
+
+            if (this.bouncing) {
+                ret = this.bounce.getValue();
+
+                if (ret === null) {
+                    this._stopScrolling();
+                    return null;
+                }
+
+                return ret | 0;
+            }
+
+            oldY = this._getY();
+
+            if (abs(vy) <= 0) {
+                if (oldY > 0) {
+                    b = oldY | 0;
+                    c = 0 - b;
+                    this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
+                    this.bouncing = true;
+                }
+                else if (oldY < (bottom = -this._getBottom())) {
+                    b = oldY | 0;
+                    c = bottom - b;
+                    this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
+                    this.bouncing = true;
+                }
+                else {
+                    this._stopScrolling();
+                    return null;
+                }
+            }
+
+            if (oldY + vy > 0) {
+                this.vy = (vy > 10) ?  10 : vy;
+            }
+            if (oldY - vy < (bottom = -this._getBottom())) {
+                this.vy = (vy < -10) ?  -10 : vy;
+            }
+
+            ret = (oldY + this.getVY()) | 0;
+            return ret;
+        },
+
+        /**
+         * Do initial settings
+         */
+        _initSettings: function () {
+        
+            this.el.style.webkitTextSizeAdjust = 'none';
+            this.el.style.textSizeAdjust = 'none';
+        },
+
+        /**
+         * To check height of parent and element.
+         */
+        _checkHeight: function () {
+        
+            var parentHeight = this.getParentHeight();
+
+            if (this.getOriginalHeight() < parentHeight) {
+                this._setHeight(parentHeight);
+            }
+            else {
+                this._setHeight('auto');
+            }
+        },
+
+        /**
+         * To check overflow when update elements.
+         */
+        _checkOverflow: function () {
+            if (-this._getBottom() > this._getY()) {
+                this._setY(-(this.getHeight() - this.getParentHeight()));
+            }
+        },
+
+        /**
+         * Scrolling function.
+         */
+        _scrolling: function () {
+        
+            var self = this;
+
+            self.moving = true;
+
+            clearInterval(self.timer);
+            self.timer = setInterval(function () {
+            
+                var value = self.getValue();
+                
+                if (value === null) {
+                    self._stopScrolling();
+                    return false;
+                }
+
+                self._setY(value);
+            }, this.FPS);
+        },
+
+        /**
+         * Stop scrolling.
+         */
+        _stopScrolling: function () {
+        
+            this.vy = 0;
+            clearInterval(this.timer);
+            this.moving = false;
+            this.bouncing = false;
+            this.bounce = null;
+            this.trigger('moveend');
+        },
+
+        /**
+         * Event handler
+         */
+        _stop: function (e) {
+        
+            var self = this;
+
+            this.stopTimer = setTimeout(function () {
+
+                clearInterval(self.timer);
+                self.timer = null;
+            }, 100);
+        },
+
+
+        /*! -----------------------------------------------------------
+            GETTER & SETTER
+        --------------------------------------------------------------- */
+        /**
+         * Get bottom
+         * @returns {Number} return the bottom number
+         */
+        _getBottom: function () {
+        
+            return this.getHeight() - this.getParentHeight();
+        },
+
+        /**
+         * Get velocity of Y
+         * @returns {Number} current velocity of y.
+         */
+        getVY: function () {
+        
+            var curVY = this.vy;
+
+            this.vy = this.vy - (this.vy / 30) << 0;
+            return curVY;
+        },
+
+        _setHeight: function (val) {
+
+            if (!val) {
+                return false;
+            }
+            else if (Object.prototype.toString.call(val) === '[object String]') {
+                this.el.style.height = val;
+                return;
+            }
+
+            this.el.style.height = val + 'px';
+        },
+
+        /**
+         * Get Y position
+         * @returns {Number} current y position number
+         */
+        _getY: function () {
+            return this.y;
+        },
+
+        /**
+         * Set y position
+         * @param {Number} y set the number.
+         */
+        _setY: function (y) {
+        
+            var matrix = new WebKitCSSMatrix(this.el.style.webkitTransform),
+                x = matrix.e;
+
+            this.y = y;
+            this.el.style.webkitTransform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+
+            this.trigger('move', {
+                value: y,
+                direction: 'y'
+            });
+        },
+
+        /**
+         * Get container
+         * @returns {Element} A parent element.
+         */
+        getContainer: function () {
+            return this.parentEl;
+        },
+
+        /**
+         * Get height
+         * @returns {Number} element's height
+         */
+        getHeight: function () {
+            return this.el.clientHeight;
+        },
+
+        /**
+         * Get original height
+         * @returns {Number} element's original height
+         */
+        getOriginalHeight: function () {
+
+            var oldHeight = this.getHeight(),
+                curHeight;
+
+            //temporary setting to `auto`.
+            this.el.style.height = 'auto';
+
+            if (this.el.originalHeight !== (curHeight = this.getHeight())) {
+                this.el.originalHeight = curHeight;
+            }
+
+            return this.el.originalHeight;
+        },
+
+        /**
+         * Get parent height
+         * @returns {Number} return the parent element height.
+         */
+        getParentHeight: function () {
+            return this.parentEl.clientHeight;
+        },
+
+        /*! -----------------------------------------------------------
+            EVENTS
+        --------------------------------------------------------------- */
+        /**
+         * Mouse down event handler
+         * @param {EventObject} e
+         */
+        _down: function (e) {
+        
+            if (this._autoMoving) {
+                return false;
+            }
+
+            if (!!this.bouncing) {
+                if (this._getY() < 0) {
+                    this._setY(-this._getBottom());
+                }
+                else {
+                    this._setY(0);
+                }
+                this._stopScrolling();
+            }
+            
+            this.dragging = true;
+            this.trigger('movestart');
+
+            //this.prevX = e.pageX;
+            this.prevY = (e.touches) ? e.touches[0].pageY : e.pageY;
+            this.prevT = +new Date();
+        },
+
+
+        /**
+         * Mouse move event handler
+         * @param {EventObject} e
+         */
+        _move: function (e) {
+
+            e.preventDefault();
+            if (!this.dragging) {
+                return true;
+            }
+            clearTimeout(this.stopTimer);
+
+            var oldY = this._getY(),
+                now = +new Date(),
+                t = now - this.prevT,
+                pageY = (e.touches) ? e.touches[0].pageY : e.pageY,
+                dist = this.prevY - pageY,
+                accY = dist / (t || (t = 1)),
+                d = (accY - this.prevAccY) / t,
+                nextPos = oldY - dist;
+
+            //calculate Acceleration.
+            this.accY += d * t;
+
+            //calculate Velocity.
+            this.vy = -this.accY * t;
+
+            if (nextPos > 0 || nextPos < -this._getBottom()) {
+                nextPos = oldY - ((dist / 2) | 0);
+            }
+
+            //set position
+            this._setY(nextPos);
+
+            //set previous values.
+            this.prevT    = now;
+            this.prevY    = pageY;
+            this.prevAccY = accY;
+        },
+
+        /**
+         * Mouse up event handler
+         * @param {EventObject} e
+         */
+        _up: function (e) {
+
+            if (!this.dragging) {
+                return true;
+            }
+            this.dragging = false;
+            this._scrolling();
+        },
+        update: function (e) {
+
+            this._checkHeight();
+            this._checkOverflow();
+            this.trigger('update');
+        }
+    });
 
     ////////////////////////////////////////////////////////////////////
 
@@ -945,13 +1635,6 @@
          * @returns {Number} current x position number
          */
         _getX: function () {
-        
-            /*
-            var matrix = new WebKitCSSMatrix(window.getComputedStyle(this.el).webkitTransform),
-                x = matrix.e,
-                x = matrix.f;
-            */
-
             return this.x;
         },
 
@@ -961,8 +1644,11 @@
          */
         _setX: function (x) {
         
+            var matrix = new WebKitCSSMatrix(this.el.style.webkitTransform),
+                y = matrix.f;
+
             this.x = x;
-            this.el.style.webkitTransform = 'translate3d(' + x + 'px, 0, 0)';
+            this.el.style.webkitTransform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
 
             this.trigger('move', {
                 value: x,
@@ -1106,6 +1792,6 @@
     });
 
     //////////////////////////////////////////////
-    exports.HFixnel = HFixnel;
+    exports.Fixnel = Fixnel;
 
 }(this, document, this));
