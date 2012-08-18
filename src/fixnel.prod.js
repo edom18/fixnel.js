@@ -896,7 +896,29 @@
         HORIZONTAL: 'horizontal',
         BOTH: 'both'
     };
-    Fixnel.prototype = {
+    Fixnel.prototype = copyClone({}, EventDispatcher.prototype, {
+        _setEvents: function () {
+            if (this._vfixnel) {
+                this._vfixnel.on('move', this._moveY, this);
+                this._vfixnel.on('moveend', this._moveEndY, this);
+            }
+            if (this._hfixnel) {
+                this._hfixnel.on('move', this._moveX, this);
+                this._hfixnel.on('moveend', this._moveEndX, this);
+            }
+        },
+        _moveX: function (e, data) {
+            this.trigger('moveX', data);
+        },
+        _moveY: function (e, data) {
+            this.trigger('moveY', data);
+        },
+        _moveEndX: function () {
+            this.trigger('moveendx');
+        },
+        _moveEndY: function () {
+            this.trigger('moveendy');
+        },
         init: function (el, opt) {
 
             opt || (opt = {});
@@ -914,8 +936,26 @@
             else {
                 this._vfixnel = new VFixnel(el);
             }
+
+            this._setEvents();
+        },
+        moveTo: function (x, y, opt) {
+            if (this._vfixnel) {
+                this._vfixnel.moveTo(y, opt);
+            }
+            if (this._hfixnel) {
+                this._hfixnel.moveTo(x, opt);
+            }
+        },
+        update: function () {
+            if (this._vfixnel) {
+                this._vfixnel.update();
+            }
+            if (this._hfixnel) {
+                this._hfixnel.update();
+            }
         }
-    };
+    });
 
     ////////////////////////////////////////////////////////////////////
 
@@ -1029,7 +1069,7 @@
                 ret = this.bounce.getValue();
 
                 if (ret === null) {
-                    this._stopScrolling();
+                    //this._stopScrolling();
                     return null;
                 }
 
@@ -1052,7 +1092,7 @@
                     this.bouncing = true;
                 }
                 else {
-                    this._stopScrolling();
+                    //this._stopScrolling();
                     return null;
                 }
             }
@@ -1210,8 +1250,7 @@
             this.el.style.webkitTransform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
 
             this.trigger('move', {
-                value: y,
-                direction: 'y'
+                value: y
             });
         },
 
@@ -1462,7 +1501,7 @@
                 ret = this.bounce.getValue();
 
                 if (ret === null) {
-                    this._stopScrolling();
+                    //this._stopScrolling();
                     return null;
                 }
 
@@ -1485,7 +1524,7 @@
                     this.bouncing = true;
                 }
                 else {
-                    this._stopScrolling();
+                    //this._stopScrolling();
                     return null;
                 }
             }
@@ -1643,8 +1682,7 @@
             this.el.style.webkitTransform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
 
             this.trigger('move', {
-                value: x,
-                direction: 'x'
+                value: x
             });
         },
 
