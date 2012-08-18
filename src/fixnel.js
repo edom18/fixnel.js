@@ -286,9 +286,9 @@
         FADE_IN : 2, 
         WAIT    : 3 
     };
-    Fader.DEFAULT_DURATION = 30;
+    Fader.DEFAULT_DURATION = 10;
     Fader.DEFAULT_EASING = 'easeOutQuad';
-    Fader.DEFAULT_DELAY = 500;
+    Fader.DEFAULT_DELAY = 400;
     Fader.FPS = 32;
     Fader.prototype = {
         Easing: Easing,
@@ -312,7 +312,7 @@
             }
 
             this._startFadeIn();
-            this._fade(b, f);
+            this._fade(b, f, 1);
         },
         fadeOut: function () {
         
