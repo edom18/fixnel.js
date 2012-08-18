@@ -14,7 +14,7 @@ Fixnel.directionType.[VERTICAL | HORIZONTAL | BOTH]のいずれかを指定し�
 デフォルトはverticalです。
 
 ## Example
-var ele = document.getElementById('[target ID]');
+`var ele = document.getElementById('[target ID]');`
 
 //only vertical  
 `var fixnel = new Fixnel(ele);`
