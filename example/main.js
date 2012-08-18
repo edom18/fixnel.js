@@ -14,4 +14,6 @@
     var p3 = new Fixnel(f3, {
         direction: Fixnel.directionType.BOTH
     });
+
+    win.p3 = p3;
 }(this, document));
