@@ -90,3 +90,16 @@ html, body {
   background: -ms-linear-gradient(#999999, #ffffff);
   background: linear-gradient(#999999, #ffffff);
 }
+
+.typeB, .typeC {
+    position: absolute;
+    left: 50%;
+    height: 50%;
+}
+
+.typeB {
+    top: 0;
+}
+.typeC {
+    top: 50%;
+}
