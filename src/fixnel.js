@@ -42,6 +42,53 @@
 
     /////////////////////////////////////////////
 
+    function _extend(props) {
+    
+        var super_ = this,
+            child = function () {
+                super_.apply(this, arguments);
+            };
+
+        function ctor() {}
+
+        ctor.prototype = super_.prototype;
+        child.prototype = new ctor();
+        child.prototype.callParent = function () {
+            super_.apply(this, arguments);
+        };
+        child.prototype.super_ = super_.prototype;
+
+        copyClone(child.prototype, props);
+
+        return child;
+    }
+
+    //////////////////////////////////////////////////
+
+    /**
+     * copy arguments object properties to `obj`
+     * @param {Object} obj base to be copy of properties.
+     */
+    function copyClone(obj) {
+
+        var args = Array.prototype.slice.call(arguments, 1),
+            l    = args.length,
+            i    = 0,
+            src, prop;
+
+        for (; i < l; i++) {
+            src = args[i];
+            for (prop in src) {
+                obj[prop] = args[i][prop];
+            }
+        }
+
+        return obj;
+    }
+
+
+    /////////////////////////////////////////////
+
     /**
      * Easing functions
      * @param {Number} t Time.
@@ -247,29 +294,6 @@
         };
     }());
 
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * copy arguments object properties to `obj`
-     * @param {Object} obj base to be copy of properties.
-     */
-    function copyClone(obj) {
-
-        var args = Array.prototype.slice.call(arguments, 1),
-            l    = args.length,
-            i    = 0,
-            src, prop;
-
-        for (; i < l; i++) {
-            src = args[i];
-            for (prop in src) {
-                obj[prop] = args[i][prop];
-            }
-        }
-
-        return obj;
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -330,12 +354,6 @@
             clearTimeout(this.waitTimer);
             clearTimeout(this.fadeTimer);
         },
-        //_startFadeIn: function () {
-        //    this.fadeState = Fader.mode.FADE_IN;
-        //},
-        //_startFadeOut: function () {
-        //    this.fadeState = Fader.mode.FADE_OUT;
-        //},
         _fade: function (b, f, d) {
         
             var self = this,
@@ -459,8 +477,8 @@
             //this.flWidth = this.fl.getWidth();
             this.width           = +(this.el.style.width || '').replace('px', '');
             this.container       = this.fl.getContainer();
-            this.contentHeight   = this.fl.getHeight();
-            this.containerHeight = this.fl.getParentHeight();
+            this.contentHeight   = this.fl.getSize();
+            this.containerHeight = this.fl.getParentSize();
             this.scrollHeight    = this.contentHeight - this.containerHeight;
             this.ratio           = this.containerHeight / this.contentHeight;
         },
@@ -959,20 +977,21 @@
 
     ////////////////////////////////////////////////////////////////////
 
-    function VFixnel(el) {
+    function FixnelBase(el) {
         this.init.apply(this, arguments);
     }
+    FixnelBase.extend = _extend;
 
-    VFixnel.prototype = copyClone({}, EventDispatcher.prototype, {
+    FixnelBase.prototype = copyClone({}, EventDispatcher.prototype, {
         dragging: false,
         DURATION: 30,
         FPS: 1000 / 60,
-        prevAccY: 0,
-        prevY: 0,
+        prevAcc: 0,
+        prevPos: 0,
         prevT: 0,
-        accY: 0,
-        vy: 0,
-        y: 0,
+        acc: 0,
+        _v: 0,
+        pos: 0,
         init: function (el) {
         
             var self = this,
@@ -981,11 +1000,12 @@
             this.el = el;
             this.parentEl = el.parentNode;
             this.Easing = Easing;
-            this.el.originalHeight = this.getHeight();
+            this.el.originalSize = this.getSize();
 
             this._initSettings();
-            this._checkHeight();
+            this._checkSize();
 
+            //TODO
             this.scrollbar = new VScrollbar(this);
 
             el.className += (el.className) ? ' ' + className : className;
@@ -997,37 +1017,37 @@
             win.addEventListener('resize', _bind(this.update, this), false);
         },
 
-        moveTo: function (y, opt) {
+        moveTo: function (pos, opt) {
         
             var self = this,
-                bottom,
+                edge,
                 easing,
                 timer,
                 t, b, f, c, d;
 
             opt || (opt = {});
 
-            if (y !== 0 && !y) {
+            if (pos !== 0 && !pos) {
                 return;
             }
 
-            y *= -1;
+            pos *= -1;
 
-            if (y > 0) {
-                y = 0;
+            if (pos > 0) {
+                pos = 0;
             }
-            else if (y < (bottom = -this._getBottom())) {
-                y = bottom;
+            else if (pos < (edge = -this._getEdge())) {
+                pos = edge;
             }
 
             if (opt.animOff) {
-                this._setY(y);
+                this._setPos(pos);
                 return false;
             }
 
             t = 0;
-            b = this._getY();
-            c = y - b;
+            b = this._getPos();
+            c = pos - b;
             d = 10;
             easing = new this.Easing('easeOutExpo', t, b, c, d);
             this._autoMoving = true;
@@ -1039,12 +1059,12 @@
                 if (val === null) {
                     easing = null;
                     clearTimeout(timer);
-                    self._setY(y);
+                    self._setPos(pos);
                     self._autoMoving = false;
                     return null;
                 }
 
-                self._setY(val);
+                self._setPos(val);
 
                 timer = setTimeout(ease, 16);
             }());
@@ -1056,13 +1076,13 @@
          */
         getValue: function () {
         
-            var oldY,
-                bottom,
+            var oldPos,
+                edge,
                 t = 0,
                 b = 0,
                 c = 0,
                 d = this.DURATION,
-                vy = this.vy,
+                _v = this._v,
                 ret = 0;
 
             if (this.bouncing) {
@@ -1075,18 +1095,18 @@
                 return ret | 0;
             }
 
-            oldY = this._getY();
+            oldPos = this._getPos();
 
-            if (abs(vy) <= 0) {
-                if (oldY > 0) {
-                    b = oldY | 0;
+            if (abs(_v) <= 0) {
+                if (oldPos > 0) {
+                    b = oldPos | 0;
                     c = 0 - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
                     this.bouncing = true;
                 }
-                else if (oldY < (bottom = -this._getBottom())) {
-                    b = oldY | 0;
-                    c = bottom - b;
+                else if (oldPos < (edge = -this._getEdge())) {
+                    b = oldPos | 0;
+                    c = edge - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
                     this.bouncing = true;
                 }
@@ -1095,14 +1115,14 @@
                 }
             }
 
-            if (oldY + vy > 0) {
-                this.vy = (vy > 10) ?  10 : vy;
+            if (oldPos + _v > 0) {
+                this._v = (_v > 10) ?  10 : _v;
             }
-            if (oldY - vy < (bottom = -this._getBottom())) {
-                this.vy = (vy < -10) ?  -10 : vy;
+            if (oldPos - _v < (edge = -this._getEdge())) {
+                this._v = (_v < -10) ?  -10 : _v;
             }
 
-            ret = (oldY + this.getVY()) | 0;
+            ret = (oldPos + this.getV()) | 0;
             return ret;
         },
 
@@ -1110,7 +1130,6 @@
          * Do initial settings
          */
         _initSettings: function () {
-        
             this.el.style.webkitTextSizeAdjust = 'none';
             this.el.style.textSizeAdjust = 'none';
         },
@@ -1118,15 +1137,15 @@
         /**
          * To check height of parent and element.
          */
-        _checkHeight: function () {
+        _checkSize: function () {
         
-            var parentHeight = this.getParentHeight();
+            var parentSize = this.getParentSize();
 
-            if (this.getOriginalHeight() < parentHeight) {
-                this._setHeight(parentHeight);
+            if (this.getOriginalSize() < parentSize) {
+                this._setSize(parentSize);
             }
             else {
-                this._setHeight('auto');
+                this._setSize('auto');
             }
         },
 
@@ -1134,8 +1153,8 @@
          * To check overflow when update elements.
          */
         _checkOverflow: function () {
-            if (-this._getBottom() > this._getY()) {
-                this._setY(-(this.getHeight() - this.getParentHeight()));
+            if (-this._getEdge() > this._getPos()) {
+                this._setPos(-(this.getSize() - this.getParentSize()));
             }
         },
 
@@ -1158,7 +1177,7 @@
                     return false;
                 }
 
-                self._setY(value);
+                self._setPos(value);
             }, this.FPS);
         },
 
@@ -1166,7 +1185,7 @@
          * Stop scrolling.
          */
         _stopScrolling: function () {
-            this.vy = 0;
+            this._v = 0;
             clearInterval(this.timer);
             this.moving = false;
             this.bouncing = false;
@@ -1182,7 +1201,6 @@
             var self = this;
 
             this.stopTimer = setTimeout(function () {
-
                 clearInterval(self.timer);
                 self.timer = null;
             }, 100);
@@ -1193,62 +1211,47 @@
             GETTER & SETTER
         --------------------------------------------------------------- */
         /**
-         * Get bottom
-         * @returns {Number} return the bottom number
+         * Get edge
+         * @returns {Number} return the edge number
          */
-        _getBottom: function () {
-        
-            return this.getHeight() - this.getParentHeight();
+        _getEdge: function () {
+            return this.getSize() - this.getParentSize();
         },
 
         /**
-         * Get velocity of Y
-         * @returns {Number} current velocity of y.
+         * Get velocity of pos
+         * @returns {Number} current velocity of pos.
          */
-        getVY: function () {
+        getV: function () {
         
-            var curVY = this.vy;
+            var curV = this._v;
 
-            this.vy = this.vy - (this.vy / 30) << 0;
-            return curVY;
+            this._v = this._v - (this._v / 30) << 0;
+            return curV;
         },
 
-        _setHeight: function (val) {
-
-            if (!val) {
-                return false;
-            }
-            else if (Object.prototype.toString.call(val) === '[object String]') {
-                this.el.style.height = val;
-                return;
-            }
-
-            this.el.style.height = val + 'px';
+        _setSize: function (val) {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
 
         /**
-         * Get Y position
-         * @returns {Number} current y position number
+         * Get pos position
+         * @returns {Number} current pos position number
          */
-        _getY: function () {
-            return this.y;
+        _getPos: function () {
+            return this.pos;
         },
 
         /**
-         * Set y position
-         * @param {Number} y set the number.
+         * Set pos position
+         * @param {Number} pos set the number.
          */
-        _setY: function (y) {
-        
-            var matrix = new WebKitCSSMatrix(this.el.style.webkitTransform),
-                x = matrix.e;
+        _setPos: function (pos) {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
 
-            this.y = y;
-            this.el.style.webkitTransform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
-
-            this.trigger('move', {
-                value: y
-            });
+        _getEventPos: function (e) {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
 
         /**
@@ -1263,35 +1266,24 @@
          * Get height
          * @returns {Number} element's height
          */
-        getHeight: function () {
-            return this.el.clientHeight;
+        getSize: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
 
         /**
-         * Get original height
-         * @returns {Number} element's original height
+         * Get original size
+         * @returns {Number} element's original size
          */
-        getOriginalHeight: function () {
-
-            var oldHeight = this.getHeight(),
-                curHeight;
-
-            //temporary setting to `auto`.
-            this.el.style.height = 'auto';
-
-            if (this.el.originalHeight !== (curHeight = this.getHeight())) {
-                this.el.originalHeight = curHeight;
-            }
-
-            return this.el.originalHeight;
+        getOriginalSize: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
 
         /**
          * Get parent height
          * @returns {Number} return the parent element height.
          */
-        getParentHeight: function () {
-            return this.parentEl.clientHeight;
+        getParentSize: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
 
         /*! -----------------------------------------------------------
@@ -1308,11 +1300,11 @@
             }
 
             if (!!this.bouncing) {
-                if (this._getY() < 0) {
-                    this._setY(-this._getBottom());
+                if (this._getPos() < 0) {
+                    this._setPos(-this._getEdge());
                 }
                 else {
-                    this._setY(0);
+                    this._setPos(0);
                 }
                 this._stopScrolling();
             }
@@ -1320,8 +1312,7 @@
             this.dragging = true;
             this.trigger('movestart');
 
-            //this.prevX = e.pageX;
-            this.prevY = (e.touches) ? e.touches[0].pageY : e.pageY;
+            this.prevPos = this._getEventPos(e);
             this.prevT = +new Date();
         },
 
@@ -1338,32 +1329,32 @@
             }
             clearTimeout(this.stopTimer);
 
-            var oldY = this._getY(),
+            var oldPos = this._getPos(),
                 now = +new Date(),
                 t = now - this.prevT,
-                pageY = (e.touches) ? e.touches[0].pageY : e.pageY,
-                dist = this.prevY - pageY,
-                accY = dist / (t || (t = 1)),
-                d = (accY - this.prevAccY) / t,
-                nextPos = oldY - dist;
+                pagePos = this._getEventPos(e),
+                dist = this.prevPos - pagePos,
+                acc = dist / (t || (t = 1)),
+                d = (acc - this.prevAcc) / t,
+                nextPos = oldPos - dist;
 
             //calculate Acceleration.
-            this.accY += d * t;
+            this.acc += d * t;
 
             //calculate Velocity.
-            this.vy = -this.accY * t;
+            this._v = -this.acc * t;
 
-            if (nextPos > 0 || nextPos < -this._getBottom()) {
-                nextPos = oldY - ((dist / 2) | 0);
+            if (nextPos > 0 || nextPos < -this._getEdge()) {
+                nextPos = oldPos - ((dist / 2) | 0);
             }
 
             //set position
-            this._setY(nextPos);
+            this._setPos(nextPos);
 
             //set previous values.
-            this.prevT    = now;
-            this.prevY    = pageY;
-            this.prevAccY = accY;
+            this.prevT   = now;
+            this.prevPos = pagePos;
+            this.prevAcc = acc;
         },
 
         /**
@@ -1371,7 +1362,6 @@
          * @param {EventObject} e
          */
         _up: function (e) {
-
             if (!this.dragging) {
                 return true;
             }
@@ -1379,10 +1369,82 @@
             this._scrolling();
         },
         update: function (e) {
-
-            this._checkHeight();
+            this._checkSize();
             this._checkOverflow();
             this.trigger('update');
+        }
+    });
+
+    ////////////////////////////////////////////////////////////////////
+
+    var VFixnel = FixnelBase.extend({
+        /*! -----------------------------------------------------------
+            GETTER & SETTER
+        --------------------------------------------------------------- */
+        _setSize: function (val) {
+            if (!val) {
+                return false;
+            }
+            else if (Object.prototype.toString.call(val) === '[object String]') {
+                this.el.style.height = val;
+                return;
+            }
+
+            this.el.style.height = val + 'px';
+        },
+        /**
+         * Set y position
+         * @param {Number} y set the number.
+         */
+        _setPos: function (pos) {
+        
+            var matrix = new WebKitCSSMatrix(this.el.style.webkitTransform),
+                x = matrix.e;
+
+            this.pos = pos;
+            this.el.style.webkitTransform = 'translate3d(' + x + 'px, ' + pos + 'px, 0)';
+
+            this.trigger('move', {
+                value: pos
+            });
+        },
+
+        _getEventPos: function (e) {
+            return (e.touches) ? e.touches[0].pageY : e.pageY;
+        },
+
+        /**
+         * Get height
+         * @returns {Number} element's height
+         */
+        getSize: function () {
+            return this.el.clientHeight;
+        },
+
+        /**
+         * Get original height
+         * @returns {Number} element's original height
+         */
+        getOriginalSize: function () {
+
+            var curSize;
+
+            //temporary setting to `auto`.
+            this.el.style.height = 'auto';
+
+            if (this.el.originalSize !== (curSize = this.getSize())) {
+                this.el.originalSize = curSize;
+            }
+
+            return this.el.originalSize;
+        },
+
+        /**
+         * Get parent height
+         * @returns {Number} return the parent element height.
+         */
+        getParentSize: function () {
+            return this.parentEl.clientHeight;
         }
     });
 
