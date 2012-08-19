@@ -1069,7 +1069,6 @@
                 ret = this.bounce.getValue();
 
                 if (ret === null) {
-                    //this._stopScrolling();
                     return null;
                 }
 
@@ -1092,7 +1091,6 @@
                     this.bouncing = true;
                 }
                 else {
-                    //this._stopScrolling();
                     return null;
                 }
             }
@@ -1168,7 +1166,6 @@
          * Stop scrolling.
          */
         _stopScrolling: function () {
-        
             this.vy = 0;
             clearInterval(this.timer);
             this.moving = false;
@@ -1501,7 +1498,6 @@
                 ret = this.bounce.getValue();
 
                 if (ret === null) {
-                    //this._stopScrolling();
                     return null;
                 }
 
@@ -1524,7 +1520,6 @@
                     this.bouncing = true;
                 }
                 else {
-                    //this._stopScrolling();
                     return null;
                 }
             }
