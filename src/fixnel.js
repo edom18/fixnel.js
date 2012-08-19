@@ -700,8 +700,8 @@
         
             this.width          = +(this.el.style.height || '').replace('px', '');
             this.container      = this.fl.getContainer();
-            this.contentWidth   = this.fl.getWidth();
-            this.containerWidth = this.fl.getParentWidth();
+            this.contentWidth   = this.fl.getSize();
+            this.containerWidth = this.fl.getParentSize();
             this.scrollWidth    = this.contentWidth - this.containerWidth;
             this.ratio          = this.containerWidth / this.contentWidth;
         },
@@ -1006,7 +1006,7 @@
             this._checkSize();
 
             //TODO
-            this.scrollbar = new VScrollbar(this);
+            this.scrollbar = this._getScrollbar();
 
             el.className += (el.className) ? ' ' + className : className;
             el.addEventListener(event.START, _bind(this._down, this), false);
@@ -1210,6 +1210,9 @@
         /*! -----------------------------------------------------------
             GETTER & SETTER
         --------------------------------------------------------------- */
+        _getScrollbar: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
         /**
          * Get edge
          * @returns {Number} return the edge number
@@ -1381,6 +1384,9 @@
         /*! -----------------------------------------------------------
             GETTER & SETTER
         --------------------------------------------------------------- */
+        _getScrollbar: function () {
+            return new VScrollbar(this);
+        },
         _setSize: function (val) {
             if (!val) {
                 return false;
@@ -1450,312 +1456,50 @@
 
     ////////////////////////////////////////////////////////////////////
 
-    function HFixnel(el) {
-        this.init.apply(this, arguments);
-    }
-
-    HFixnel.prototype = copyClone({}, EventDispatcher.prototype, {
-        dragging: false,
-        DURATION: 30,
-        FPS: 1000 / 60,
-        prevAccX: 0,
-        prevX: 0,
-        prevT: 0,
-        accX: 0,
-        vy: 0,
-        x: 0,
-        init: function (el) {
-        
-            var self = this,
-                className = 'fixnel-body';
-
-            this.el = el;
-            this.parentEl = el.parentNode;
-            this.Easing = Easing;
-            this.el.originalWidth = this.getWidth();
-
-            this._initSettings();
-            this._checkWidth();
-
-            this.scrollbar = new HScrollbar(this);
-
-            el.className += (el.className) ? ' ' + className : className;
-            el.addEventListener(event.START, _bind(this._down, this), false);
-            el.addEventListener(event.START, _bind(this._stop, this), false);
-            doc.addEventListener(event.END, _bind(this._up, this), false);
-            doc.addEventListener(event.MOVE, _bind(this._move, this), false);
-
-            win.addEventListener('resize', _bind(this.update, this), false);
-        },
-
-        moveTo: function (x, opt) {
-        
-            var self = this,
-                bottom,
-                easing,
-                timer,
-                t, b, f, c, d;
-
-            opt || (opt = {});
-
-            if (x !== 0 && !x) {
-                return;
-            }
-
-            x *= -1;
-
-            if (x > 0) {
-                x = 0;
-            }
-            else if (x < (bottom = -this._getRight())) {
-                x = bottom;
-            }
-
-            if (opt.animOff) {
-                this._setX(x);
-                return false;
-            }
-
-            t = 0;
-            b = this._getX();
-            c = x - b;
-            d = 10;
-            easing = new this.Easing('easeOutExpo', t, b, c, d);
-            this._autoMoving = true;
-            
-            (function ease() {
-
-                var val = easing.getValue();
-
-                if (val === null) {
-                    easing = null;
-                    clearTimeout(timer);
-                    self._setX(x);
-                    self._autoMoving = false;
-                    return null;
-                }
-
-                self._setX(val);
-
-                timer = setTimeout(ease, 16);
-            }());
-        },
-
-        /**
-         * Get next value.
-         * @returns {Number} next value
-         */
-        getValue: function () {
-        
-            var oldX,
-                bottom,
-                t = 0,
-                b = 0,
-                c = 0,
-                d = this.DURATION,
-                vy = this.vy,
-                ret = 0;
-
-            if (this.bouncing) {
-                ret = this.bounce.getValue();
-
-                if (ret === null) {
-                    return null;
-                }
-
-                return ret | 0;
-            }
-
-            oldX = this._getX();
-
-            if (abs(vy) <= 0) {
-                if (oldX > 0) {
-                    b = oldX | 0;
-                    c = 0 - b;
-                    this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
-                    this.bouncing = true;
-                }
-                else if (oldX < (bottom = -this._getRight())) {
-                    b = oldX | 0;
-                    c = bottom - b;
-                    this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
-                    this.bouncing = true;
-                }
-                else {
-                    return null;
-                }
-            }
-
-            if (oldX + vy > 0) {
-                this.vy = (vy > 10) ?  10 : vy;
-            }
-            if (oldX - vy < (bottom = -this._getRight())) {
-                this.vy = (vy < -10) ?  -10 : vy;
-            }
-
-            ret = (oldX + this.getVX()) | 0;
-            return ret;
-        },
-
-        /**
-         * Do initial settings
-         */
-        _initSettings: function () {
-        
-            this.el.style.webkitTextSizeAdjust = 'none';
-            this.el.style.textSizeAdjust = 'none';
-        },
-
-        /**
-         * To check height of parent and element.
-         */
-        _checkWidth: function () {
-        
-            var parentWidth = this.getParentWidth();
-
-            if (this.getOriginalWidth() < parentWidth) {
-                this._setWidth(parentWidth);
-            }
-            else {
-                this._setWidth('auto');
-            }
-        },
-
-        /**
-         * To check overflow when update elements.
-         */
-        _checkOverflow: function () {
-            if (-this._getRight() > this._getX()) {
-                this._setX(-(this.getWidth() - this.getParentWidth()));
-            }
-        },
-
-        /**
-         * Scrolling function.
-         */
-        _scrolling: function () {
-        
-            var self = this;
-
-            self.moving = true;
-
-            clearInterval(self.timer);
-            self.timer = setInterval(function () {
-            
-                var value = self.getValue();
-                
-                if (value === null) {
-                    self._stopScrolling();
-                    return false;
-                }
-
-                self._setX(value);
-            }, this.FPS);
-        },
-
-        /**
-         * Stop scrolling.
-         */
-        _stopScrolling: function () {
-        
-            this.vy = 0;
-            clearInterval(this.timer);
-            this.moving = false;
-            this.bouncing = false;
-            this.bounce = null;
-            this.trigger('moveend');
-        },
-
-        /**
-         * Event handler
-         */
-        _stop: function (e) {
-        
-            var self = this;
-
-            this.stopTimer = setTimeout(function () {
-
-                clearInterval(self.timer);
-                self.timer = null;
-            }, 100);
-        },
-
-
+    var HFixnel = FixnelBase.extend({
         /*! -----------------------------------------------------------
             GETTER & SETTER
         --------------------------------------------------------------- */
-        /**
-         * Get bottom
-         * @returns {Number} return the bottom number
-         */
-        _getRight: function () {
-        
-            return this.getWidth() - this.getParentWidth();
+        _getScrollbar: function () {
+            return new HScrollbar(this);
         },
-
-        /**
-         * Get velocity of x
-         * @returns {Number} current velocity of x.
-         */
-        getVX: function () {
-        
-            var curVX = this.vy;
-
-            this.vy = this.vy - (this.vy / 30) << 0;
-            return curVX;
-        },
-
-        _setWidth: function (val) {
-
+        _setSize: function (val) {
             if (!val) {
                 return false;
             }
             else if (Object.prototype.toString.call(val) === '[object String]') {
-                this.el.style.height = val;
+                this.el.style.width = val;
                 return;
             }
 
-            this.el.style.height = val + 'px';
+            this.el.style.width = val + 'px';
         },
-
-        /**
-         * Get x position
-         * @returns {Number} current x position number
-         */
-        _getX: function () {
-            return this.x;
-        },
-
         /**
          * Set x position
          * @param {Number} x set the number.
          */
-        _setX: function (x) {
+        _setPos: function (pos) {
         
             var matrix = new WebKitCSSMatrix(this.el.style.webkitTransform),
                 y = matrix.f;
 
-            this.x = x;
-            this.el.style.webkitTransform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+            this.pos = pos;
+            this.el.style.webkitTransform = 'translate3d(' + pos + 'px, ' + y + 'px, 0)';
 
             this.trigger('move', {
-                value: x
+                value: pos
             });
         },
 
-        /**
-         * Get container
-         * @returns {Element} A parent element.
-         */
-        getContainer: function () {
-            return this.parentEl;
+        _getEventPos: function (e) {
+            return (e.touches) ? e.touches[0].pageX : e.pageX;
         },
 
         /**
          * Get width
          * @returns {Number} element's width
          */
-        getWidth: function () {
+        getSize: function () {
             return this.el.clientWidth;
         },
 
@@ -1763,118 +1507,26 @@
          * Get original width
          * @returns {Number} element's original width
          */
-        getOriginalWidth: function () {
+        getOriginalSize: function () {
 
-            var oldWidth = this.getWidth(),
-                curWidth;
+            var curSize;
 
             //temporary setting to `auto`.
             this.el.style.width = 'auto';
 
-            if (this.el.originalWidth !== (curWidth = this.getWidth())) {
-                this.el.originalWidth = curWidth;
+            if (this.el.originalSize !== (curSize = this.getSize())) {
+                this.el.originalSize = curSize;
             }
 
-            return this.el.originalWidth;
+            return this.el.originalSize;
         },
 
         /**
          * Get parent width
          * @returns {Number} return the parent element width.
          */
-        getParentWidth: function () {
+        getParentSize: function () {
             return this.parentEl.clientWidth;
-        },
-
-        /*! -----------------------------------------------------------
-            EVENTS
-        --------------------------------------------------------------- */
-        /**
-         * Mouse down event handler
-         * @param {EventObject} e
-         */
-        _down: function (e) {
-        
-            if (this._autoMoving) {
-                return false;
-            }
-
-            if (!!this.bouncing) {
-                if (this._getX() < 0) {
-                    this._setX(-this._getRight());
-                }
-                else {
-                    this._setX(0);
-                }
-                this._stopScrolling();
-            }
-            
-            this.dragging = true;
-            this.trigger('movestart');
-
-            //this.prevX = e.pageX;
-            this.prevX = (e.touches) ? e.touches[0].pageX : e.pageX;
-            this.prevT = +new Date();
-        },
-
-
-        /**
-         * Mouse move event handler
-         * @param {EventObject} e
-         */
-        _move: function (e) {
-
-            e.preventDefault();
-            if (!this.dragging) {
-                return true;
-            }
-            clearTimeout(this.stopTimer);
-
-            var oldX = this._getX(),
-                now = +new Date(),
-                t = now - this.prevT,
-                pageX = (e.touches) ? e.touches[0].pageX : e.pageX,
-                dist = this.prevX - pageX,
-                accX = dist / (t || (t = 1)),
-                d = (accX - this.prevAccX) / t,
-                nextPos = oldX - dist;
-
-            //calculate Acceleration.
-            this.accX += d * t;
-
-            //calculate Velocity.
-            this.vy = -this.accX * t;
-
-            if (nextPos > 0 || nextPos < -this._getRight()) {
-                nextPos = oldX - ((dist / 2) | 0);
-            }
-
-            //set position
-            this._setX(nextPos);
-
-            //set previous values.
-            this.prevT    = now;
-            this.prevX    = pageX;
-            this.prevAccX = accX;
-        },
-
-        /**
-         * Mouse up event handler
-         * @param {EventObject} e
-         */
-        _up: function (e) {
-
-            if (!this.dragging) {
-                return true;
-            }
-            this.dragging = false;
-            this._scrolling();
-        },
-        update: function (e) {
-
-            this._checkWidth();
-            this._checkOverflow();
-            this.trigger('update');
         }
     });
 
