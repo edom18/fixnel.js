@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.3.0
+ * @version  0.4.0
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
