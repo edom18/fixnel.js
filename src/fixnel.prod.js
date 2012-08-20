@@ -426,16 +426,13 @@
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * @constructor
-     * @class VScrollbar
-     * To create scroll bar.
-     * @param {VFixnelObject} fl
-     */
-    function VScrollbar() {
+    /** @constructor */
+    function ScrollbarBase(fl) {
         this.init.apply(this, arguments);
     }
-    VScrollbar.prototype = copyClone({}, EventDispatcher.prototype, {
+    ScrollbarBase.extend = _extend;
+
+    ScrollbarBase.prototype = copyClone({}, EventDispatcher.prototype, {
         FPS: 1000 / 60,
         DURATION: 30,
         Easing: Easing,
@@ -465,26 +462,153 @@
             return this;
         },
         _renderShow: function () {
-        
             this._show();
             this._wait(2000);
         },
         getEl: function () {
-        
             return this.el;
         },
         _getContentInfo: function () {
-        
-            //this.flWidth = this.fl.getWidth();
-            this.width           = +(this.el.style.width || '').replace('px', '');
-            this.container       = this.fl.getContainer();
-            this.contentHeight   = this.fl.getSize();
-            this.containerHeight = this.fl.getParentSize();
-            this.scrollHeight    = this.contentHeight - this.containerHeight;
-            this.ratio           = this.containerHeight / this.contentHeight;
+            this._minSize      = this._getMinSize();
+            this.container     = this.fl.getContainer();
+            this.contentSize   = this.fl.getSize();
+            this.containerSize = this.fl.getParentSize();
+            this.scrollSize    = this.contentSize - this.containerSize;
+            this.ratio         = this.containerSize / this.contentSize;
+        },
+        _getMinSize: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
         _setPos: function (pos) {
-        
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
+
+        /**
+         * Set size
+         */
+        _setSize: function (val) {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
+        _setElSize: function (val) {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
+        _setInitSize: function() {
+            var val = (this.containerSize * this.ratio) | 0;
+
+            if (!val) {
+                return false;
+            }
+            if (val < this.size) {
+                val = this.size;
+            }
+
+            this.size = val;
+            this._setSize(val);
+            this._setElSize(val);
+        },
+
+        /**
+         * Set size as top
+         */
+        _setSizeStart: function (val) {
+            val = ((this.containerSize * this.ratio) | 0) - val / 2;
+            this._setPosOriginStart();
+            this._setPos(0);
+            this._setSize(val);
+        },
+
+        /**
+         * Set size as bottom
+         */
+        _setSizeEnd: function (val) {
+            var delta = val + (this.scrollSize);
+
+            val = ((this.containerSize * this.ratio) | 0) + delta / 2;
+            this._setPosOriginEnd();
+            this._setPos(-this.scrollSize);
+            this._setSize(val);
+        },
+
+        _setPosOriginStart: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
+
+        _setPosOriginEnd: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
+
+        /**
+         * Move event handler.
+         * @param {EventObject} e
+         * @param {Object} data has position value.
+         */
+        _move: function (e, data) {
+            var value = data.value;
+
+            if (value > 0) {
+                this._setSizeStart(value);
+            }
+            else if (value < -(this.scrollSize)) {
+                this._setSizeEnd(value);
+            }
+            else if (value === null) {
+                this.trigger('moveend');
+                return false;
+            }
+            else {
+                this._setPos(value);
+            }
+        },
+        _moveStart: function () {
+            clearTimeout(this.timer);
+            if (this.moving || this.timer) {
+                return false;
+            }
+            this.timer = null;
+            this.moving = true;
+            this._show();
+        },
+        _moveEnd: function () {
+            this._wait(300);
+            this.moving = false;
+        },
+        _wait: function (delay) {
+            this._fader.delayFadeOut(delay);
+        },
+        _hide: function () {
+            this._fader.fadeOut();
+        },
+        _show: function () {
+            this._fader.fadeIn();
+        },
+
+        /**
+         * Create elements wapper and bar.
+         */
+        _createElement: function () {
+            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+        },
+        _update: function () {
+            this._getContentInfo();
+            this._setInitSize();
+            this._setPos(this._pos);
+            this._renderShow();
+        }
+    });
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @constructor
+     * @class VScrollbar
+     * To create scroll bar.
+     * @param {VFixnelObject} fl
+     */
+    var VScrollbar = ScrollbarBase.extend({
+        _getMinSize: function () {
+            return +(this.el.style.width || '').replace('px', '');
+        },
+        _setPos: function (pos) {
             if (!pos) {
                 return false;
             }
@@ -504,109 +628,32 @@
             if (!val) {
                 return false;
             }
-            if (val < this.width) {
-                val = this.width;
+            if (val < this._minSize) {
+                val = this._minSize;
             }
 
             this.inner.style.height = val + 'px';
         },
-        _setInitSize: function() {
-        
-            var val = (this.containerHeight * this.ratio) | 0;
+        _setElSize: function (val) {
+
             if (!val) {
                 return false;
             }
-            if (val < this.width) {
-                val = this.width;
+            if (val < this._minSize) {
+                val = this._minSize;
             }
 
-            this.size = val;
             this.el.style.height = val + 'px';
-            this.inner.style.height = val + 'px';
-        },
-
-        /**
-         * Set size as top
-         */
-        _setSizeStart: function (val) {
-        
-            val = ((this.containerHeight * this.ratio) | 0) - val / 2;
-            this._setPosOriginStart();
-            this._setPos(0);
-            this._setSize(val);
-        },
-
-        /**
-         * Set size as bottom
-         */
-        _setSizeEnd: function (val) {
-        
-            var delta = val + (this.scrollHeight);
-
-            val = ((this.containerHeight * this.ratio) | 0) + delta / 2;
-            this._setPosOriginEnd();
-            this._setPos(-this.scrollHeight);
-            this._setSize(val);
         },
 
         _setPosOriginStart: function () {
-        
             this.inner.style.top = 0;
             this.inner.style.bottom = 'auto';
         },
 
         _setPosOriginEnd: function () {
-        
             this.inner.style.top = 'auto';
             this.inner.style.bottom = 0;
-        },
-
-        /**
-         * Move event handler.
-         * @param {EventObject} e
-         * @param {Object} data has position value.
-         */
-        _move: function (e, data) {
-
-            var value = data.value;
-
-            if (value > 0) {
-                this._setSizeStart(value);
-            }
-            else if (value < -(this.scrollHeight)) {
-                this._setSizeEnd(value);
-            }
-            else if (value === null) {
-                this.trigger('moveend');
-                return false;
-            }
-            else {
-                this._setPos(value);
-            }
-        },
-        _moveStart: function () {
-        
-            clearTimeout(this.timer);
-            if (this.moving || this.timer) {
-                return false;
-            }
-            this.timer = null;
-            this.moving = true;
-            this._show();
-        },
-        _moveEnd: function () {
-        
-            this._wait(300);
-            this.moving = false;
-        },
-        _wait: function (delay) {
-            this._fader.delayFadeOut(delay);
-        },
-        _hide: function () {
-            this._fader.fadeOut();
-        },
-        _show: function () {
-            this._fader.fadeIn();
         },
 
         /**
@@ -641,13 +688,6 @@
 
             this.el = el;
             this.inner = inner;
-        },
-        _update: function () {
-        
-            this._getContentInfo();
-            this._setInitSize();
-            this._setPos(this._pos);
-            this._renderShow();
         }
     });
 
@@ -659,56 +699,11 @@
      * To create scroll bar.
      * @param {VFixnelObject} fl
      */
-    function HScrollbar() {
-        this.init.apply(this, arguments);
-    }
-    HScrollbar.prototype = copyClone({}, EventDispatcher.prototype, {
-        FPS: 1000 / 60,
-        DURATION: 30,
-        Easing: Easing,
-        init: function (fl) {
-        
-            this.fl = fl;
-
-            this._createElement();
-            this._getContentInfo();
-            this._setInitSize();
-            this._fader = new Fader(this);
-
-            this.fl.on('update', this._update, this);
-            this.fl.on('move', this._move, this);
-            this.fl.on('movestart', this._moveStart, this);
-            this.fl.on('moveend', this._moveEnd, this);
-
-            this.render();
-        },
-        render: function () {
-        
-            var self = this;
-
-            this.container.appendChild(this.el);
-            this._renderShow();
-
-            return this;
-        },
-        _renderShow: function () {
-            this._show();
-            this._wait(2000);
-        },
-        getEl: function () {
-            return this.el;
-        },
-        _getContentInfo: function () {
-        
-            this.width          = +(this.el.style.height || '').replace('px', '');
-            this.container      = this.fl.getContainer();
-            this.contentWidth   = this.fl.getSize();
-            this.containerWidth = this.fl.getParentSize();
-            this.scrollWidth    = this.contentWidth - this.containerWidth;
-            this.ratio          = this.containerWidth / this.contentWidth;
+    var HScrollbar = ScrollbarBase.extend({
+        _getMinSize: function () {
+            return +(this.el.style.height || '').replace('px', '');
         },
         _setPos: function (pos) {
-        
             if (!pos) {
                 return false;
             }
@@ -728,107 +723,32 @@
             if (!val) {
                 return false;
             }
-            if (val < this.width) {
-                val = this.width;
+            if (val < this._minSize) {
+                val = this._minSize;
             }
 
             this.inner.style.width = val + 'px';
         },
-        _setInitSize: function() {
-        
-            var val = (this.containerWidth * this.ratio) | 0;
+        _setElSize: function (val) {
+
             if (!val) {
                 return false;
             }
-            if (val < this.width) {
-                val = this.width;
+            if (val < this._minSize) {
+                val = this._minSize;
             }
 
-            this.size = val;
             this.el.style.width = val + 'px';
-            this.inner.style.width = val + 'px';
-        },
-
-        /**
-         * Set size as top
-         */
-        _setSizeStart: function (val) {
-            val = ((this.containerWidth * this.ratio) | 0) - val / 2;
-            this._setPosOriginStart();
-            this._setPos(0);
-            this._setSize(val);
-        },
-
-        /**
-         * Set size as bottom
-         */
-        _setSizeEnd: function (val) {
-            var delta = val + (this.scrollWidth);
-
-            val = ((this.containerWidth * this.ratio) | 0) + delta / 2;
-            this._setPosOriginEnd();
-            this._setPos(-this.scrollWidth);
-            this._setSize(val);
         },
 
         _setPosOriginStart: function () {
-        
             this.inner.style.left = 0;
             this.inner.style.right = 'auto';
         },
 
         _setPosOriginEnd: function () {
-        
             this.inner.style.left = 'auto';
             this.inner.style.right = 0;
-        },
-
-        /**
-         * Move event handler.
-         * @param {EventObject} e
-         * @param {Object} data has position value.
-         */
-        _move: function (e, data) {
-
-            var value = data.value;
-
-            if (value > 0) {
-                this._setSizeStart(value);
-            }
-            else if (value < -(this.scrollWidth)) {
-                this._setSizeEnd(value);
-            }
-            else if (value === null) {
-                this.trigger('moveend');
-                return false;
-            }
-            else {
-                this._setPos(value);
-            }
-        },
-        _moveStart: function () {
-        
-            clearTimeout(this.timer);
-            if (this.moving || this.timer) {
-                return false;
-            }
-            this.timer = null;
-            this.moving = true;
-            this._show();
-        },
-        _moveEnd: function () {
-        
-            this._wait(300);
-            this.moving = false;
-        },
-        _wait: function (delay) {
-            this._fader.delayFadeOut(delay);
-        },
-        _hide: function () {
-            this._fader.fadeOut();
-        },
-        _show: function () {
-            this._fader.fadeIn();
         },
 
         /**
@@ -863,13 +783,6 @@
 
             this.el = el;
             this.inner = inner;
-        },
-        _update: function () {
-        
-            this._getContentInfo();
-            this._setInitSize();
-            this._setPos(this._pos);
-            this._renderShow();
         }
     });
 
