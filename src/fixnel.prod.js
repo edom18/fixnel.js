@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.5.0
+ * @version  0.5.1
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -498,8 +498,8 @@
             if (!val) {
                 return false;
             }
-            if (val < this.size) {
-                val = this.size;
+            if (val < this._minSize) {
+                val = this._minSize;
             }
 
             this.size = val;
