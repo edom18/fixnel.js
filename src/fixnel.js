@@ -427,6 +427,7 @@
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * @constructor
      * @class VScrollbar
      * To create scroll bar.
      * @param {VFixnelObject} fl
@@ -653,6 +654,7 @@
     ////////////////////////////////////////////////////////////////////////////
 
     /**
+     * @constructor
      * @class HScrollbar
      * To create scroll bar.
      * @param {VFixnelObject} fl
@@ -977,6 +979,7 @@
 
     ////////////////////////////////////////////////////////////////////
 
+    /** @constructor */
     function FixnelBase(el) {
         this.init.apply(this, arguments);
     }
@@ -1005,7 +1008,6 @@
             this._initSettings();
             this._checkSize();
 
-            //TODO
             this.scrollbar = this._getScrollbar();
 
             el.className += (el.className) ? ' ' + className : className;
@@ -1380,6 +1382,7 @@
 
     ////////////////////////////////////////////////////////////////////
 
+    /** @constructor */
     var VFixnel = FixnelBase.extend({
         /*! -----------------------------------------------------------
             GETTER & SETTER
@@ -1456,6 +1459,7 @@
 
     ////////////////////////////////////////////////////////////////////
 
+    /** @constructor */
     var HFixnel = FixnelBase.extend({
         /*! -----------------------------------------------------------
             GETTER & SETTER
