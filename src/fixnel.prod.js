@@ -461,6 +461,12 @@
 
             return this;
         },
+        show: function () {
+            this.inner.style.display = 'block';
+        },
+        hide: function () {
+            this.inner.style.display = 'none';
+        },
         _renderShow: function () {
             this._show();
             this._wait(2000);
@@ -918,10 +924,10 @@
             this.Easing = Easing;
             this.el.originalSize = this.getSize();
 
+            this.scrollbar = this._getScrollbar();
             this._initSettings();
             this._checkSize();
-
-            this.scrollbar = this._getScrollbar();
+            this.update();
 
             el.className += (el.className) ? ' ' + className : className;
             el.addEventListener(event.START, _bind(this._down, this), false);
@@ -1058,9 +1064,11 @@
 
             if (this.getOriginalSize() < parentSize) {
                 this._setSize(parentSize);
+                this.scrollbar.hide();
             }
             else {
                 this._setSize('auto');
+                this.scrollbar.show();
             }
         },
 
