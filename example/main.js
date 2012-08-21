@@ -15,5 +15,7 @@
         direction: Fixnel.directionType.BOTH
     });
 
+    win.p1 = p1;
+    win.p2 = p2;
     win.p3 = p3;
 }(this, document));
