@@ -56,32 +56,24 @@ Theme Styles
 *******************************************************************************/
 
 body {
-  box-sizing: border-box;
-  color:#373737;
-  background: #212121;
-  font-size: 16px;
-  font-family: 'Myriad Pro', Calibri, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+    padding: 48px 58px;
+    background: #fff url(../img/bg.png) center top repeat-x;
+    color: #111;
+    font-size: 14px;
+    font-family: 'Times New Roman', serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  margin: 10px 0;
-  font-weight: 700;
-  color:#222222;
-  font-family: 'Lucida Grande', 'Calibri', Helvetica, Arial, sans-serif;
-  letter-spacing: -1px;
-}
-
-h1 {
-  font-size: 36px;
-  font-weight: 700;
+section h1 {
+    margin-bottom: 9px;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
 }
 
 h2 {
-  padding-bottom: 10px;
-  font-size: 32px;
-  background: url('../images/bg_hr.png') repeat-x bottom;
+    font-size: 32px;
 }
 
 h3 {
@@ -104,9 +96,6 @@ p {
   margin: 10px 0 15px 0;
 }
 
-footer p {
-  color: #f2f2f2;
-}
 
 a {
   text-decoration: none;
@@ -231,7 +220,7 @@ hr {
   height: 1px;
   margin-bottom: 5px;
   border: none;
-  background: url('../images/bg_hr.png') repeat-x center;
+  background: url('../img/bg_hr.png') repeat-x center;
 }
 
 table {
@@ -266,17 +255,6 @@ img {
 Full-Width Styles
 *******************************************************************************/
 
-.outer {
-  width: 100%;
-}
-
-.inner {
-  position: relative;
-  max-width: 640px;
-  padding: 20px 10px;
-  margin: 0 auto;
-}
-
 #forkme_banner {
   display: block;
   position: absolute;
@@ -285,7 +263,7 @@ Full-Width Styles
   z-index: 10;
   padding: 10px 50px 10px 10px;
   color: #fff;
-  background: url('../images/blacktocat.png') #0090ff no-repeat 95% 50%;
+  background: url('../img/blacktocat.png') #0090ff no-repeat 95% 50%;
   font-weight: 700;
   box-shadow: 0 0 10px rgba(0,0,0,.5);
   border-bottom-left-radius: 2px;
@@ -293,85 +271,107 @@ Full-Width Styles
 }
 
 #header_wrap {
-  background: #212121;
-  background: -moz-linear-gradient(top, #373737, #212121);
-  background: -webkit-linear-gradient(top, #373737, #212121);
-  background: -ms-linear-gradient(top, #373737, #212121);
-  background: -o-linear-gradient(top, #373737, #212121);
-  background: linear-gradient(top, #373737, #212121);
+    margin: -48px -58px;
+    padding: 48px 58px;
 }
-
-#header_wrap .inner {
-  padding: 50px 10px 30px 10px;
+#header_wrap:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    width: 100%;
+    height: 47px;
+    border-top: solid 1px #494949;
+    background: -moz-linear-gradient(top, #3f3f3f, #121212);
+    background: -webkit-linear-gradient(top, #3f3f3f, #121212);
+    background: -ms-linear-gradient(top, #3f3f3f, #121212);
+    background: -o-linear-gradient(top, #3f3f3f, #121212);
+    background: linear-gradient(top, #3f3f3f, #121212);
+    box-shadow: 0 0 16px 5px rgba(0, 0, 0, 0.5);
 }
 
 #project_title {
-  margin: 0;
-  color: #fff;
-  font-size: 42px;
-  font-weight: 700;
-  text-shadow: #111 0px 0px 10px;
+    margin: 0;
+    font-style: italic;
+    font-size: 148.5px;
+    font-weight: bold;
+    text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.43);
 }
 
 #project_tagline {
-  color: #fff;
-  font-size: 24px;
-  font-weight: 300;
-  background: none;
-  text-shadow: #111 0px 0px 10px;
+    margin-bottom: 92px;
+    padding-left: 13px;
+    font-size: 14px;
 }
 
 #downloads {
-  position: absolute;
-  width: 210px;
-  z-index: 10;
-  bottom: -40px;
-  right: 0;
-  height: 70px;
-  background: url('../images/icon_download.png') no-repeat 0% 90%;
+    position: absolute;
+    width: 210px;
+    z-index: 10;
+    bottom: -40px;
+    right: 0;
+    height: 70px;
+    background: url('../img/icon_download.png') no-repeat 0% 90%;
 }
 
 .zip_download_link {
-  display: block;
-  float: right;
-  width: 90px;
-  height:70px;
-  text-indent: -5000px;
-  overflow: hidden;
-  background: url(../images/sprite_download.png) no-repeat bottom left;
+    display: block;
+    float: right;
+    width: 90px;
+    height:70px;
+    text-indent: -5000px;
+    overflow: hidden;
+    background: url(../img/sprite_download.png) no-repeat bottom left;
 }
 
 .tar_download_link {
-  display: block;
-  float: right;
-  width: 90px;
-  height:70px;
-  text-indent: -5000px;
-  overflow: hidden;
-  background: url(../images/sprite_download.png) no-repeat bottom right;
-  margin-left: 10px;
+    display: block;
+    float: right;
+    width: 90px;
+    height:70px;
+    text-indent: -5000px;
+    overflow: hidden;
+    background: url(../img/sprite_download.png) no-repeat bottom right;
+    margin-left: 10px;
 }
 
 .zip_download_link:hover {
-  background: url(../images/sprite_download.png) no-repeat top left;
+    background: url(../img/sprite_download.png) no-repeat top left;
 }
 
 .tar_download_link:hover {
-  background: url(../images/sprite_download.png) no-repeat top right;
+    background: url(../img/sprite_download.png) no-repeat top right;
+}
+
+#fixnelSample {
+    position: absolute;
+    right: 48px;
+    top: 96px;
+    width: 322px;
+    height: 609px;
+    padding: 132px 36px;
+    background: url(../img/bg_iphone.png) left top no-repeat;
+}
+#fixnelSample .sample-wrapper {
+    background-color: #fff;
+    height: 470px;
+    padding: 5px 15px;
 }
 
 #main_content_wrap {
-  background: #f2f2f2;
-  border-top: 1px solid #111;
-  border-bottom: 1px solid #111;
+    padding-right: 490px;
+    padding-left: 13px;
 }
 
-#main_content {
-  padding-top: 40px;
-}
-
-#footer_wrap {
-  background: #212121;
+.code {
+    margin-bottom: 24px;
+    padding: 0 15px;
+    background-color: rgba(228, 228, 228, 0.5);
+    border: solid 1px #a8a8a8;
+    border-radius: 4px;
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.9), 1px 1px 7px rgba(0, 0, 0, 0.3);
+    font-size: 18px;
 }
 
 
@@ -398,9 +398,9 @@ Small Device Styles
   font-size: 32px;
   }
 
-  h1 {
-    font-size: 28px;
-  }
+    h1 {
+        font-size: 28px;
+    }
 
   h2 {
     font-size: 24px;

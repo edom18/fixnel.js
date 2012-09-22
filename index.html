@@ -1,54 +1,110 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset='utf-8' />
+<title>Fixnel.js - iOS風スクロールライブラリ</title>
+<meta name="description" content="Fixnel.js : ページを固定するためのライブラリ。" />
+<link rel="stylesheet" href="css/stylesheet.css" />
+<script src="src/fixnel.js"></script>
+</head>
 
-  <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Fixnel.js : ページを固定するためのライブラリ。" />
+<body>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+<!-- HEADER -->
+<div id="header_wrap" class="outer">
+    <header class="inner">
+        <a id="forkme_banner" href="https://github.com/edom18/fixnel.js">View on GitHub</a>
 
-    <title>Fixnel.js</title>
-  </head>
+        <h1 id="project_title">Fixnel.js</h1>
+        <h2 id="project_tagline">
+            fixnel.jsは、iOSのUIである慣性スクロールを再現したJSです。<br />
+            位置固定のfixとpanelを合成した造語です。<br />
+            <br />
+            fixnel.js give a likes iOS UI with inertia scrolling.<br />
+            "fixnel" is combine the word of "fix" and "panel", I created word.
+        </h2>
 
-  <body>
+        <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/edom18/fixnel.js/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/edom18/fixnel.js/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+    </header>
+</div>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/edom18/fixnel.js">View on GitHub</a>
+<!-- MAIN CONTENT -->
+<div id="main_content_wrap">
+    <article>
+        <figure id="fixnelSample">
+            <div class="sample-wrapper">
+                <div>
+                    fixnel.js<br />
+                    fixnel.js give a likes iOS UI with inertia scrolling.<br />
+                    "fixnel" is combine the word of "fix" and "panel", I created word.<br />
+                    <br />
+                    Syntax<br />
+                    Fixnel(element, [options]);<br />
+                    <br />
+                    Options<br /> 
+                    {direction: 'which direction'}<br />
+                    <br />
+                    Options takes one object as argument. One of options is "direction". That is given a string. Whichever are ['vertical' | 'horizontal' | 'both']. You also can use Fixnel.directionType property. It contains [VERTICAL | HORIZONTAL | BOTH]. Default is "vertical".<br />
+                    <br />
+                    Example<br />
+                    var ele = document.getElementById('[target ID]');<br />
+                    <br />
+                    //only vertical<br />
+                    var fixnel = new Fixnel(ele);<br />
+                    <br />
+                    //only horizontal<br />
+                    var fixnel = new Fixnel(ele, { direction: Fixnel.directionType.HORIZONTAL });<br />
+                    <br />
+                    //both<br />
+                    var fixnel = new Fixnel(ele, { direction: Fixnel.directionType.BOTH });<br />
+                    <br />
+                    instance method.<br />
+                    <br />
+                    fixnel.moveTo(x, y[, opt]);<br />
+                    <br />
+                    fixnel move to [x, y].<br />
+                    If you give an opt, you can control moving. opt has one property. It is "animate". If you give it to "false", moveTo method move to [x, y] without animation.<br />
+                    <br />
+                    fixnel.update();<br />
+                    <br />
+                    update method give to control for contents height changing. If you update contents, you should call the update method. When window.resize was fired, fixnel called update automatically.
+                </div>
+            <!-- /.sample-wrapper --></div>
+        </figure>
+        <section id="main_content" class="inner">
+            <h1>Syntax</h1>
+            <div class="code">
+                <p>Fixnel(<i>element, [options]</i>);</p>
+            <!-- /.code --></div>
 
-          <h1 id="project_title">Fixnel.js</h1>
-          <h2 id="project_tagline">ページを固定するためのライブラリ。</h2>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/edom18/fixnel.js/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/edom18/fixnel.js/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
+            <h1>Options</h1>
+            <div class="code">
+                <p>Fixnel(<i>element, [options]</i>);</p>
+            <!-- /.code --></div>
+        </section>
+    </article>
+</div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>fixnel.js</h1>
-
-<p>fixnel.jsは、iPhoneのUIである慣性スクロールを再現したJSです。<br>
-位置固定のfixとpanelを合成した造語です。<br>
-現状ではまだ縦スクロールにしか対応していません。<br>
-さらにまだバグがあるので、とりあえずの公開です。</p>
-      </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
+<!-- FOOTER  -->
+<div id="footer_wrap" class="outer">
+    <footer class="inner">
         <p class="copyright">Fixnel.js maintained by <a href="https://github.com/edom18">edom18</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
+    </footer>
+</div>
 
-    
 
-  </body>
+<script>
+(function (win, doc) {
+    var target = doc.querySelector('.sample-wrapper > div'),
+        fixnel = new Fixnel(target);
+
+}(window, document));
+</script>
+
+</body>
 </html>
