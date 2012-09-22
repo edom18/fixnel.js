@@ -1,0 +1,34 @@
+fixnel.js<br />
+fixnel.js give a likes iOS UI with inertia scrolling.<br />
+"fixnel" is combine the word of "fix" and "panel", I created word.<br />
+<br />
+Syntax<br />
+Fixnel(element, [options]);<br />
+<br />
+Options<br /> 
+{direction: 'which direction'}<br />
+<br />
+Options takes one object as argument. One of options is "direction". That is given a string. Whichever are ['vertical' | 'horizontal' | 'both']. You also can use Fixnel.directionType property. It contains [VERTICAL | HORIZONTAL | BOTH]. Default is "vertical".<br />
+<br />
+Example<br />
+var ele = document.getElementById('[target ID]');<br />
+<br />
+//only vertical<br />
+var fixnel = new Fixnel(ele);<br />
+<br />
+//only horizontal<br />
+var fixnel = new Fixnel(ele, { direction: Fixnel.directionType.HORIZONTAL });<br />
+<br />
+//both<br />
+var fixnel = new Fixnel(ele, { direction: Fixnel.directionType.BOTH });<br />
+<br />
+instance method.<br />
+<br />
+fixnel.moveTo(x, y[, opt]);<br />
+<br />
+fixnel move to [x, y].<br />
+If you give an opt, you can control moving. opt has one property. It is "animate". If you give it to "false", moveTo method move to [x, y] without animation.<br />
+<br />
+fixnel.update();<br />
+<br />
+update method give to control for contents height changing. If you update contents, you should call the update method. When window.resize was fired, fixnel called update automatically.
