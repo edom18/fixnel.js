@@ -1007,7 +1007,7 @@
             el.addEventListener(event.START, _bind(this._down, this), false);
             el.addEventListener(event.START, _bind(this._stop, this), false);
             doc.addEventListener(event.END, _bind(this._up, this), false);
-            doc.addEventListener(event.MOVE, _bind(this._move, this), false);
+            el.addEventListener(event.MOVE, _bind(this._move, this), false);
 
             win.addEventListener('resize', _bind(this.update, this), false);
         },
@@ -1080,7 +1080,7 @@
                 _v = this._v,
                 ret = 0;
 
-            if (this.bouncing) {
+            if (!!this.bounce) {
                 ret = this.bounce.getValue();
 
                 if (ret === null) {
@@ -1097,13 +1097,11 @@
                     b = oldPos | 0;
                     c = 0 - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
-                    this.bouncing = true;
                 }
                 else if (oldPos < (edge = -this._getEdge())) {
                     b = oldPos | 0;
                     c = edge - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
-                    this.bouncing = true;
                 }
                 else {
                     return null;
@@ -1193,7 +1191,6 @@
             this._v = 0;
             clearInterval(this.timer);
             this.moving = false;
-            this.bouncing = false;
             this.bounce = null;
             this.trigger('moveend');
         },
@@ -1309,6 +1306,9 @@
                 this._stopScrolling();
             }
             
+            clearInterval(self.timer);
+            this.bounce = null;
+
             this.dragging = true;
             this.trigger('movestart');
 
@@ -1328,6 +1328,7 @@
                 return true;
             }
             clearTimeout(this.stopTimer);
+            //this.bounce = null;
 
             var oldPos = this._getPos(),
                 now = +new Date(),
@@ -1545,3 +1546,4 @@
     exports.Fixnel = Fixnel;
 
 }(this, document, this));
+
