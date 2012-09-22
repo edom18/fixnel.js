@@ -581,6 +581,10 @@
             this.moving = true;
             this._show();
         },
+
+        /**
+         * Move end.
+         */
         _moveEnd: function () {
             this._wait(300);
             this.moving = false;
@@ -588,9 +592,17 @@
         _wait: function (delay) {
             this._fader.delayFadeOut(delay);
         },
+
+        /**
+         * Hide scrollbar.
+         */
         _hide: function () {
             this._fader.fadeOut();
         },
+
+        /**
+         * Show scrollbar.
+         */
         _show: function () {
             this._fader.fadeIn();
         },
