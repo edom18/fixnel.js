@@ -502,6 +502,13 @@
             this.scrollSize    = this.contentSize - this.containerSize;
             this.ratio         = this.containerSize / this.contentSize;
         },
+
+        /**
+         * @return {number} bar size.
+         */
+        _getSize: function () {
+            return (this.containerSize * this.ratio) | 0;
+        },
         _getMinSize: abstractMethod,
         _setPos: abstractMethod,
 
@@ -511,7 +518,7 @@
         _setSize: abstractMethod,
         _setElSize: abstractMethod,
         _setInitSize: function() {
-            var val = (this.containerSize * this.ratio) | 0;
+            var val = this._getSize();
 
             if (!val) {
                 return false;
@@ -565,6 +572,7 @@
                 this._setSizeEnd(value);
             }
             else if (value === null) {
+                this._resetSize();
                 this.trigger('moveend');
                 return false;
             }
@@ -572,6 +580,16 @@
                 this._setPos(value);
             }
         },
+        /**
+         * Reset scrollbar size as default.
+         */
+        _resetSize: function () {
+        
+        },
+
+        /**
+         * Move start.
+         */
         _moveStart: function () {
             clearTimeout(this.timer);
             if (this.moving || this.timer) {
