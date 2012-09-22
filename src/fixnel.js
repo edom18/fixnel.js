@@ -1125,8 +1125,15 @@
          * Do initial settings
          */
         _initSettings: function () {
+            var position = window.getComputedStyle(this.parentEl, '').position;
+
             this.el.style.webkitTextSizeAdjust = 'none';
             this.el.style.textSizeAdjust = 'none';
+            this.parentEl.style.overflow = 'hidden';
+
+            if (position === 'static') {
+                this.parentEl.style.position = 'relative';
+            }
         },
 
         /**
