@@ -936,15 +936,37 @@
     FixnelBase.extend = _extend;
 
     FixnelBase.prototype = copyClone({}, EventDispatcher.prototype, {
+        /** @type {boolean} */
         dragging: false,
+
+        /** @type {number} */
         DURATION: 30,
+
+        /** @type {number} */
         FPS: 1000 / 60,
+
+        /** @type {number} */
         prevAcc: 0,
+
+        /** @type {number} */
         prevPos: 0,
+
+        /** @type {number} */
         prevT: 0,
+        
+        /** @type {number} */
         acc: 0,
+
+        /** @type {number} */
         _v: 0,
+
+        /** @type {number} */
         pos: 0,
+
+        /**
+         * Initialize Fixnel.
+         * @param {Element} el
+         */
         init: function (el) {
         
             var self = this,
