@@ -1005,7 +1005,7 @@
                 pos = edge;
             }
 
-            if (opt.animOff) {
+            if (opt.animOff || opt.animate === false) {
                 this._setPos(pos);
                 return false;
             }
