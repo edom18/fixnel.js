@@ -925,6 +925,7 @@
             }
         }
     });
+    Fixnel.prototype.constructor = Fixnel;
 
     ////////////////////////////////////////////////////////////////////
 
@@ -1419,6 +1420,8 @@
         }
     });
 
+    VFixnel.prototype.constructor = VFixnel;
+
     ////////////////////////////////////////////////////////////////////
 
     /** @constructor */
@@ -1495,6 +1498,8 @@
             return this.parentEl.clientWidth;
         }
     });
+
+    HFixnel.prototype.constructor = HFixnel;
 
     //////////////////////////////////////////////
     exports.Fixnel = Fixnel;
