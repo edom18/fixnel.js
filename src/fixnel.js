@@ -1259,13 +1259,15 @@
                 return false;
             }
 
-            if (!!this.bouncing) {
-                if (this._getPos() < 0) {
-                    this._setPos(-this._getEdge());
-                }
-                else {
-                    this._setPos(0);
-                }
+            var curPos = this._getPos(),
+                edgePos = -this._getEdge();
+
+            if (curPos > 0) {
+                this._setPos(0);
+                this._stopScrolling();
+            }
+            else if (curPos < edgePos) {
+                this._setPos(edgePos);
                 this._stopScrolling();
             }
             
