@@ -52,4 +52,13 @@ moveToメソッドは、指定されたx, yの座標に移動します。
 fixnel move to [x, y].  
 If you give an opt, you can control moving. opt has one property. It is "animate". If you give it to "false", moveTo method move to [x, y] without animation.
 
-### Events
+`fixnel.update();`
+
+updateメソッドは高さが変更されたときに呼び出すことで、スクロール量などをアップデートします。  
+デフォルトではwindow.resizeが発火したタイミングで自動的に実行されるので、スマートフォンの回転時は自動でアップデートされます。  
+Ajaxなどでコンテンツの中身が動的に変化した場合などに呼び出してください。
+
+----------------------------------------------------------
+
+update method give to control for contents height changing. If you update contents, you should call the update method.
+When window.resize was fired, fixnel called update automatically.
