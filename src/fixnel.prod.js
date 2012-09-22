@@ -898,10 +898,10 @@
             }
         },
         _moveX: function (e, data) {
-            this.trigger('moveX', data);
+            this.trigger('movex', data);
         },
         _moveY: function (e, data) {
-            this.trigger('moveY', data);
+            this.trigger('movey', data);
         },
         _moveEndX: function () {
             this.trigger('moveendx');
