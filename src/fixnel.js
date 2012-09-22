@@ -31,6 +31,11 @@
         cos  = Math.cos,
         PI   = Math.PI;
 
+    /////////////////////////////////////////////
+
+    function abstractMethod() {
+        throw new Error('MUST BE IMPLEMENTS THIS METHOD');
+    }
 
     /////////////////////////////////////////////
 
@@ -497,22 +502,14 @@
             this.scrollSize    = this.contentSize - this.containerSize;
             this.ratio         = this.containerSize / this.contentSize;
         },
-        _getMinSize: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
-        _setPos: function (pos) {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _getMinSize: abstractMethod,
+        _setPos: abstractMethod,
 
         /**
          * Set size
          */
-        _setSize: function (val) {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
-        _setElSize: function (val) {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _setSize: abstractMethod,
+        _setElSize: abstractMethod,
         _setInitSize: function() {
             var val = (this.containerSize * this.ratio) | 0;
 
@@ -550,13 +547,8 @@
             this._setSize(val);
         },
 
-        _setPosOriginStart: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
-
-        _setPosOriginEnd: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _setPosOriginStart: abstractMethod,
+        _setPosOriginEnd: abstractMethod,
 
         /**
          * Move event handler.
@@ -606,9 +598,8 @@
         /**
          * Create elements wapper and bar.
          */
-        _createElement: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _createElement: abstractMethod,
+
         _update: function () {
             this._getContentInfo();
             this._setInitSize();
@@ -1186,9 +1177,8 @@
         /*! -----------------------------------------------------------
             GETTER & SETTER
         --------------------------------------------------------------- */
-        _getScrollbar: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _getScrollbar: abstractMethod,
+
         /**
          * Get edge
          * @returns {number} return the edge number
@@ -1209,9 +1199,7 @@
             return curV;
         },
 
-        _setSize: function (val) {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _setSize: abstractMethod,
 
         /**
          * Get pos position
@@ -1225,16 +1213,12 @@
          * Set pos position
          * @param {number} pos set the number.
          */
-        _setPos: function (pos) {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _setPos: abstractMethod,
 
         /**
          * 
          */
-        _getEventPos: function (e) {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        _getEventPos: abstractMethod,
 
         /**
          * Get container
@@ -1248,25 +1232,19 @@
          * Get height
          * @returns {number} element's height
          */
-        getSize: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        getSize: abstractMethod,
 
         /**
          * Get original size
          * @returns {number} element's original size
          */
-        getOriginalSize: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        getOriginalSize: abstractMethod,
 
         /**
          * Get parent height
          * @returns {number} return the parent element height.
          */
-        getParentSize: function () {
-            throw new Error('MUST BE IMPLEMENTS THIS METHOD');
-        },
+        getParentSize: abstractMethod,
 
         /*! -----------------------------------------------------------
             EVENTS
