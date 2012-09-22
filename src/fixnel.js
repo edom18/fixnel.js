@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.5.2
+ * @version  0.5.3
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -21,19 +21,24 @@
         },
         timingFunction,
 
-        /*! ------------------------------------------------------
-            IMPORT
-        ---------------------------------------------------------- */
-        abs = Math.abs,
-        pow = Math.pow,
+    /*! ------------------------------------------------------
+        IMPORT
+    ---------------------------------------------------------- */
+        abs  = Math.abs,
+        pow  = Math.pow,
         sqrt = Math.sqrt,
-        sin = Math.sin,
-        cos = Math.cos,
-        PI = Math.PI;
+        sin  = Math.sin,
+        cos  = Math.cos,
+        PI   = Math.PI;
 
 
     /////////////////////////////////////////////
 
+    /**
+     * @param {Function} target To be applied target.
+     * @param {Function} context As context is called with target.
+     * @return {Function} Binding function.
+     */
     function _bind(target, context) {
         return function () {
             target.apply(context, arguments);
@@ -42,6 +47,10 @@
 
     /////////////////////////////////////////////
 
+    /**
+     * @param {Object} props To be extended properties.
+     * @return {Function} Extended function.
+     */
     function _extend(props) {
     
         var super_ = this,
@@ -68,6 +77,7 @@
     /**
      * copy arguments object properties to `obj`
      * @param {Object} obj base to be copy of properties.
+     * @return {Obj}
      */
     function copyClone(obj) {
 
@@ -91,10 +101,10 @@
 
     /**
      * Easing functions
-     * @param {Number} t Time.
-     * @param {Number} b Beginning position.
-     * @param {Number} c Total change
-     * @param {Number} d Duration
+     * @param {number} t Time.
+     * @param {number} b Beginning position.
+     * @param {number} c Total change
+     * @param {number} d Duration
      * @example
      *  var begin    = 100,
      *      finish   = 220,
@@ -194,12 +204,12 @@
     /////////////////////////////////////////////
 
 
+    /** @constructor */
     function EventDispatcher() {}
     EventDispatcher.prototype = (function() {
         /**
          *  @param {string}   typ
-         *  @param {?Object=} opt_evt
-         *  @return {void}
+         *  @param {Object=} opt_evt
          */
         function dispatchEvent(typ, opt_evt) {
 
@@ -230,7 +240,6 @@
          *  @param {string} typ
          *  @param {function(evt:Object):void} fnc
          *  @param {Object} [context] if would like to be called context is set this param.
-         *  @return {void}
          */
         function addEventListener(typ, fnc, context) {
 
@@ -260,6 +269,11 @@
             }
         }
 
+        /**
+         * @param {string} typ
+         * @param {Function} fnc
+         * @param {Function} context
+         */
         function one(typ, fnc, context) {
         
             var self = this;
@@ -297,8 +311,8 @@
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * @class Fader
      * Manage the fade in/out and function.
+     * @constructor
      * @param {VScrollbarObject} scbar
      */
     function Fader() {
@@ -423,6 +437,7 @@
             this.target.style.opacity = val;
         }
     };
+    Fader.prototype.constructor = Fader;
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -602,12 +617,13 @@
         }
     });
 
+    ScrollbarBase.prototype.constructor = ScrollbarBase;
+
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * @constructor
-     * @class VScrollbar
      * To create scroll bar.
+     * @constructor
      * @param {VFixnelObject} fl
      */
     var VScrollbar = ScrollbarBase.extend({
@@ -697,12 +713,14 @@
         }
     });
 
+    VScrollbar.prototype.constructor = VScrollbar;
+    
+
     ////////////////////////////////////////////////////////////////////////////
 
     /**
-     * @constructor
-     * @class HScrollbar
      * To create scroll bar.
+     * @constructor
      * @param {VFixnelObject} fl
      */
     var HScrollbar = ScrollbarBase.extend({
@@ -792,6 +810,13 @@
         }
     });
 
+    HScrollbar.prototype.constructor = HScrollbar;
+
+
+    /**
+     * @constructor
+     * @param {string} type
+     */
     function Easing(type) {
         this.init.apply(this, arguments);
     }
@@ -808,7 +833,7 @@
 
         /**
          * Get next value
-         * @returns {Number}
+         * @returns {number}
          */
         getValue: function () {
         
@@ -827,6 +852,11 @@
 
     ////////////////////////////////////////////////////////////////////
 
+    /**
+     * @constructor
+     * @param {Element} el
+     * @param {Object} opt
+     */
     function Fixnel(el, opt) {
         this.init.apply(this, arguments);
     }
@@ -993,7 +1023,7 @@
 
         /**
          * Get next value.
-         * @returns {Number} next value
+         * @returns {number} next value
          */
         getValue: function () {
         
@@ -1138,7 +1168,7 @@
         },
         /**
          * Get edge
-         * @returns {Number} return the edge number
+         * @returns {number} return the edge number
          */
         _getEdge: function () {
             return this.getSize() - this.getParentSize();
@@ -1146,7 +1176,7 @@
 
         /**
          * Get velocity of pos
-         * @returns {Number} current velocity of pos.
+         * @returns {number} current velocity of pos.
          */
         getV: function () {
         
@@ -1162,7 +1192,7 @@
 
         /**
          * Get pos position
-         * @returns {Number} current pos position number
+         * @returns {number} current pos position number
          */
         _getPos: function () {
             return this.pos;
@@ -1170,12 +1200,15 @@
 
         /**
          * Set pos position
-         * @param {Number} pos set the number.
+         * @param {number} pos set the number.
          */
         _setPos: function (pos) {
             throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
 
+        /**
+         * 
+         */
         _getEventPos: function (e) {
             throw new Error('MUST BE IMPLEMENTS THIS METHOD');
         },
@@ -1190,7 +1223,7 @@
 
         /**
          * Get height
-         * @returns {Number} element's height
+         * @returns {number} element's height
          */
         getSize: function () {
             throw new Error('MUST BE IMPLEMENTS THIS METHOD');
@@ -1198,7 +1231,7 @@
 
         /**
          * Get original size
-         * @returns {Number} element's original size
+         * @returns {number} element's original size
          */
         getOriginalSize: function () {
             throw new Error('MUST BE IMPLEMENTS THIS METHOD');
@@ -1206,7 +1239,7 @@
 
         /**
          * Get parent height
-         * @returns {Number} return the parent element height.
+         * @returns {number} return the parent element height.
          */
         getParentSize: function () {
             throw new Error('MUST BE IMPLEMENTS THIS METHOD');
@@ -1217,7 +1250,7 @@
         --------------------------------------------------------------- */
         /**
          * Mouse down event handler
-         * @param {EventObject} e
+         * @param {Event} e Event object.
          */
         _down: function (e) {
         
@@ -1245,7 +1278,7 @@
 
         /**
          * Mouse move event handler
-         * @param {EventObject} e
+         * @param {Event} e Event object.
          */
         _move: function (e) {
 
@@ -1285,7 +1318,7 @@
 
         /**
          * Mouse up event handler
-         * @param {EventObject} e
+         * @param {Event} e
          */
         _up: function (e) {
             if (!this.dragging) {
@@ -1294,12 +1327,20 @@
             this.dragging = false;
             this._scrolling();
         },
+
+        /**
+         * @param {Event} e Event object.
+         */
         update: function (e) {
             this._checkSize();
             this._checkOverflow();
             this.trigger('update');
         }
     });
+
+    //Copy the itself as constructor.
+    FixnelBase.prototype.constructor = FixnelBase;
+
 
     ////////////////////////////////////////////////////////////////////
 
@@ -1324,7 +1365,7 @@
         },
         /**
          * Set y position
-         * @param {Number} y set the number.
+         * @param {number} y set the number.
          */
         _setPos: function (pos) {
         
@@ -1345,7 +1386,7 @@
 
         /**
          * Get height
-         * @returns {Number} element's height
+         * @returns {number} element's height
          */
         getSize: function () {
             return this.el.clientHeight;
@@ -1353,7 +1394,7 @@
 
         /**
          * Get original height
-         * @returns {Number} element's original height
+         * @returns {number} element's original height
          */
         getOriginalSize: function () {
 
@@ -1371,7 +1412,7 @@
 
         /**
          * Get parent height
-         * @returns {Number} return the parent element height.
+         * @returns {number} return the parent element height.
          */
         getParentSize: function () {
             return this.parentEl.clientHeight;
@@ -1401,7 +1442,7 @@
         },
         /**
          * Set x position
-         * @param {Number} x set the number.
+         * @param {number} x set the number.
          */
         _setPos: function (pos) {
         
@@ -1422,7 +1463,7 @@
 
         /**
          * Get width
-         * @returns {Number} element's width
+         * @returns {number} element's width
          */
         getSize: function () {
             return this.el.clientWidth;
@@ -1430,7 +1471,7 @@
 
         /**
          * Get original width
-         * @returns {Number} element's original width
+         * @returns {number} element's original width
          */
         getOriginalSize: function () {
 
@@ -1448,7 +1489,7 @@
 
         /**
          * Get parent width
-         * @returns {Number} return the parent element width.
+         * @returns {number} return the parent element width.
          */
         getParentSize: function () {
             return this.parentEl.clientWidth;
