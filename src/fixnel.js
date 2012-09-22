@@ -572,7 +572,6 @@
                 this._setSizeEnd(value);
             }
             else if (value === null) {
-                this._resetSize();
                 this.trigger('moveend');
                 return false;
             }
@@ -584,7 +583,7 @@
          * Reset scrollbar size as default.
          */
         _resetSize: function () {
-        
+            this._setSize(this._getSize());
         },
 
         /**
@@ -606,6 +605,7 @@
         _moveEnd: function () {
             this._wait(300);
             this.moving = false;
+            this._resetSize();
         },
         _wait: function (delay) {
             this._fader.delayFadeOut(delay);
