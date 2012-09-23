@@ -893,13 +893,21 @@
     Fixnel.prototype = copyClone({}, EventDispatcher.prototype, {
         _setEvents: function () {
             if (this._vfixnel) {
+                this._vfixnel.on('movestart', this._moveStartY, this);
                 this._vfixnel.on('move', this._moveY, this);
                 this._vfixnel.on('moveend', this._moveEndY, this);
             }
             if (this._hfixnel) {
+                this._hfixnel.on('movestart', this._moveStartX, this);
                 this._hfixnel.on('move', this._moveX, this);
                 this._hfixnel.on('moveend', this._moveEndX, this);
             }
+        },
+        _moveStartX: function () {
+            this.trigger('movestartx');
+        },
+        _moveStartY: function () {
+            this.trigger('movestarty');
         },
         _moveX: function (e, data) {
             this.trigger('movex', data);
