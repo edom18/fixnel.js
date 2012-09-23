@@ -247,6 +247,24 @@ Full-Width Styles
     padding: 5px 15px;
 }
 
+#fixnelSample h1 {
+    margin-bottom: 1em;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#fixnelSample p {
+    margin-bottom: 1em;
+}
+#fixnelSample .photo {
+    float: right;
+    margin-left: 10px;
+}
+#fixnelSample .photo2 {
+    float: left;
+    margin-right: 10px;
+}
+
 #main_content_wrap {
     padding-right: 387px;
     padding-left: 13px;
