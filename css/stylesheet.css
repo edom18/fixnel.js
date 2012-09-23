@@ -148,8 +148,8 @@ Full-Width Styles
     }
 
 #header_wrap {
-    margin: -48px -58px;
-    padding: 48px 58px;
+    margin: -48px;
+    padding: 48px;
 }
 #header_wrap:before {
     content: "";
@@ -245,7 +245,7 @@ Full-Width Styles
 }
 
 #footer_wrap {
-    margin: 0 -48px -48px;
+    margin: 0 -48px;
     padding: 24px 48px;
     border-top: dotted 1px #ccc;
 }
@@ -353,5 +353,11 @@ Small Device Styles
         height: 560px;
         padding: 125px 35px;
         background: url(../img/bg_iphone.png) left top no-repeat;
+    }
+
+    #footer_wrap {
+        margin: 0 -24px;
+        padding: 24px 24px;
+        border-top: dotted 1px #ccc;
     }
 }
