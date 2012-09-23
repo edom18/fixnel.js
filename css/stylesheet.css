@@ -222,7 +222,7 @@ Full-Width Styles
 
 #fixnelSample {
     position: absolute;
-    right: 48px;
+    right: 36px;
     top: 96px;
     width: 296px;
     height: 560px;
@@ -281,21 +281,23 @@ Full-Width Styles
 Small Device Styles
 *******************************************************************************/
 
-@media screen and (max-width: 480px) {
-  body {
-    font-size:14px;
-  }
+@media screen and (max-width: 1024px) {
+    body {
+        padding: 36px 24px;
+    }
 
-  #downloads {
-      display: none;
-  }
+    #header_wrap {
+        margin: -36px -24px;
+        padding: 36px 24px;
+    }
 
-  .inner {
-    min-width: 320px;
-    max-width: 480px;
-  }
-
-  #project_title {
-  font-size: 32px;
-  }
+    #fixnelSample {
+        position: absolute;
+        right: 12px;
+        top: 96px;
+        width: 296px;
+        height: 560px;
+        padding: 125px 35px;
+        background: url(../img/bg_iphone.png) left top no-repeat;
+    }
 }
