@@ -16,13 +16,16 @@
         <a id="forkme_banner" href="https://github.com/edom18/fixnel.js">View on GitHub</a>
 
         <h1 id="project_title">Fixnel.js</h1>
-        <h2 id="project_tagline">
-            fixnel.jsは、iOSのUIである慣性スクロールを再現したJSです。<br />
-            位置固定のfixとpanelを合成した造語です。<br />
-            <br />
-            fixnel.js give a likes iOS UI with inertia scrolling.<br />
-            "fixnel" is combine the word of "fix" and "panel", I created word.
-        </h2>
+        <div id="project_tagline">
+            <p lang="ja">
+                fixnel.jsは、iOSのUIである慣性スクロールを再現したJSです。<br />
+                位置固定のfixとpanelを合成した造語です。<br />
+            </p>
+            <p lang="en">
+                fixnel.js give a likes iOS UI with inertia scrolling.<br />
+                "fixnel" is combine the word of "fix" and "panel", I created word.
+            </p>
+        <!-- /#project_tagline --></div>
 
         <section id="downloads">
             <a class="zip_download_link" href="https://github.com/edom18/fixnel.js/zipball/master">Download this project as a .zip file</a>
@@ -75,16 +78,77 @@
             <!-- /.sample-wrapper --></div>
         </figure>
         <section id="main_content" class="inner">
-            <h1>Syntax</h1>
-            <div class="code">
-                <p>Fixnel(<i>element, [options]</i>);</p>
-            <!-- /.code --></div>
+            <section>
+                <h1>Syntax</h1>
+                <div class="code">
+                    <p>Fixnel(<i>element, [options]</i>);</p>
+                <!-- /.code --></div>
+            </section>
 
 
-            <h1>Options</h1>
-            <div class="code">
-                <p>Fixnel(<i>element, [options]</i>);</p>
-            <!-- /.code --></div>
+            <section>
+                <h1>Options</h1>
+                <div class="code">
+                    <p>{direction: '<i>[which direction]</i>'}</p>
+                <!-- /.code --></div>
+    
+                <p lang="ja">
+                   directionには文字列で、<strong>['vertical' | 'horizontal' | 'both']</strong>のいずれかを指定するか、 <strong>Fixnel.directionType.[VERTICAL | HORIZONTAL | BOTH]</strong>のいずれかを指定します。 デフォルトは <strong>vertical</strong> です。 
+                </p>
+                <p lang="en">
+                    Options takes one object as argument. One of options is "direction". That is given a string. Whichever are <strong>['vertical' | 'horizontal' | 'both']</strong>. You also can use Fixnel.directionType property. It contains <strong>[VERTICAL | HORIZONTAL | BOTH]</strong>. Default is <strong>"vertical"</strong>. 
+                </p>
+            </section>
+
+            <section>
+                <h1>Example</h1>
+                <div class="code">
+                    <span class="jsVar">var</span> ele = document.getElementById('<i><span class="jsString">[target ID]</span></i>');<br />
+                    <br />
+                    <span class="jsComment">//only vertical</span><br />
+                    <span class="jsVar">var</span> fixnel = <span class="jsNew">new</span> Fixnel(ele);<br />
+                    <br />
+                    <span class="jsComment">//only horizontal</span><br />
+                    <span class="jsVar">var</span> fixnel = <span class="jsNew">new</span> Fixnel(ele, {<br />
+                        <span class="depth1">direction: Fixnel.directionType.HORIZONTAL</span><br />
+                    });<br />
+                    <br />
+                    <span class="jsComment">//both</span><br />
+                    <span class="jsVar">var</span> fixnel = <span class="jsNew">new</span> Fixnel(ele, {<br />
+                        <span class="depth1">direction: Fixnel.directionType.BOTH</span><br />
+                    });<br />
+                <!-- /.code --></div>
+            </section>
+
+            <section>
+                <h1>Instance method</h1>
+                <div class="codeUnit">
+                    <div class="code">fixnel.<span class="jsMethod">moveTo</span>(x, y[, opt]);</div>
+                    <p lang="ja">
+                        moveToメソッドは、指定されたx, yの座標に移動します。<br />
+                        もしオプションとして <strong>{animate: false}</strong> を指定すると、アニメーションなしで即座にその場に移動します。
+                    </p>
+    
+                    <p lang="en">
+                        fixnel move to [x, y].<br />
+                        If you give an opt, you can control moving. opt has one property. It is <strong>"animate"</strong>. If you give it to <strong>"false"</strong>, moveTo method move to [x, y] without animation.
+                    </p>
+                <!-- /.codeUnit --></div>
+
+
+                <div class="codeUnit">
+                    <div class="code">fixnel.update();</div>
+                    <p lang="ja">
+                        <strong>update</strong> メソッドは高さが変更されたときに呼び出すことで、スクロール量などをアップデートします。<br />
+                        デフォルトでは <strong>window.resizeが</strong> 発火したタイミングで自動的に実行されるので、スマートフォンの回転時は自動でアップデートされます。<br />
+                        Ajaxなどでコンテンツの中身が動的に変化した場合などに呼び出してください。
+                    </p>
+    
+                    <p lang="en">
+                        <strong>update</strong> method give to control for contents height changing. If you update contents, you should call the update method. When <strong>window.resize</strong> was fired, fixnel called update automatically.
+                    </p>
+                <!-- /.codeUnit --></div>
+            </section>
         </section>
     </article>
 </div>
