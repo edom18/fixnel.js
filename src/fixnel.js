@@ -431,6 +431,9 @@
                 self.fadeOut();
             }, ms);
         },
+        cancelDelay: function () {
+            clearTimeout(this.waitTimer);
+        },
         _getOpacity: function () {
             return this.target.style.opacity;
         },
@@ -591,6 +594,7 @@
          */
         _moveStart: function () {
             clearTimeout(this.timer);
+            this._fader.cancelDelay();
             if (this.moving || this.timer) {
                 return false;
             }
