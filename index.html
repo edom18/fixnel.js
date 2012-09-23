@@ -4,6 +4,11 @@
 <meta charset='utf-8' />
 <title>Fixnel.js - iOS風スクロールライブラリ</title>
 <meta name="description" content="Fixnel.js : ページを固定するためのライブラリ。" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://edom18.github.com/fixnel.js/" />
+<meta property="og:image" content="http://edom18.github.com/fixnel.js/img/fb_iamge.png" />
+<meta property="og:site_name" content="Fixnel.js - GitHub" />
+<meta property="og:description" content="iOS風スクロールバーを実現するライブラリ。依存ファイルがなく、単体で動作します。" />
 <link rel="stylesheet" href="css/stylesheet.css" />
 <script src="src/fixnel.js"></script>
 </head>
@@ -14,6 +19,11 @@
 <div id="header_wrap" class="outer">
     <header class="inner">
         <a id="forkme_banner" href="https://github.com/edom18/fixnel.js">View on GitHub</a>
+        <div class="share">
+            <a href="https://twitter.com/share" class="twitter-share-button" data-via="edo_m18">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+            <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fedom18.github.com%2Ffixnel.js%2F&amp;send=false&amp;layout=button_count&amp;width=250&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=verdana&amp;height=21&amp;appId=252481564869710" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:250px; height:21px;" allowTransparency="true"></iframe>
+        </div>
 
         <h1 id="project_title">Fixnel.js</h1>
         <div id="project_tagline">
@@ -164,20 +174,6 @@
                         move event takes object (<strong>{value: pos}</strong>) as argument. It is value of moving amount.
                     </p>
                 <!-- /.codeUnit --></div>
-
-
-                <div class="codeUnit">
-                    <div class="code">fixnel.update();</div>
-                    <p lang="ja">
-                        <strong>update</strong> メソッドは高さが変更されたときに呼び出すことで、スクロール量などをアップデートします。<br />
-                        デフォルトでは <strong>window.resizeが</strong> 発火したタイミングで自動的に実行されるので、スマートフォンの回転時は自動でアップデートされます。<br />
-                        Ajaxなどでコンテンツの中身が動的に変化した場合などに呼び出してください。
-                    </p>
-    
-                    <p lang="en">
-                        <strong>update</strong> method give to control for contents height changing. If you update contents, you should call the update method. When <strong>window.resize</strong> was fired, fixnel called update automatically.
-                    </p>
-                <!-- /.codeUnit --></div>
             </section>
         </section>
     </article>
@@ -187,18 +183,7 @@
 <div id="footer_wrap" class="outer">
     <footer class="inner">
         <p>Created by <a href="https://twitter.com/edo_m18">@edo_m18</a></p>
-        <div>
-        <a href="https://twitter.com/share" class="twitter-share-button" data-via="edo_m18">Tweet</a>
-        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-        <div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=252481564869710";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-        </div>
+        <p>Blog: <a href="http://css-eblog.com/">CSS-EBLOG</a></p>
         <p class="copyright">Fixnel.js maintained by <a href="https://github.com/edom18">edom18</a></p>
     </footer>
 </div>
