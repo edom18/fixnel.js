@@ -431,6 +431,9 @@
                 self.fadeOut();
             }, ms);
         },
+        cancelDelay: function () {
+            clearTimeout(this.waitTimer);
+        },
         _getOpacity: function () {
             return this.target.style.opacity;
         },
@@ -591,6 +594,7 @@
          */
         _moveStart: function () {
             clearTimeout(this.timer);
+            this._fader.cancelDelay();
             if (this.moving || this.timer) {
                 return false;
             }
@@ -1190,6 +1194,7 @@
         _stopScrolling: function () {
             this._v = 0;
             clearInterval(this.timer);
+            this.timer = null;
             this.moving = false;
             this.bounce = null;
             this.trigger('moveend');
@@ -1306,7 +1311,7 @@
                 this._stopScrolling();
             }
             
-            clearInterval(self.timer);
+            clearInterval(this.timer);
             this.bounce = null;
 
             this.dragging = true;
@@ -1327,8 +1332,11 @@
             if (!this.dragging) {
                 return true;
             }
+
             clearTimeout(this.stopTimer);
-            //this.bounce = null;
+            clearTimeout(this.timer);
+
+            this.bounce = null;
 
             var oldPos = this._getPos(),
                 now = +new Date(),
