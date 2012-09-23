@@ -226,6 +226,12 @@ Full-Width Styles
     border-top: dotted 1px #ccc;
 }
 
+.share {
+    position: absolute;
+    right: 36px;
+    top: 11px;
+}
+
 #fixnelSample {
     position: absolute;
     right: 36px;
