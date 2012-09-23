@@ -149,6 +149,36 @@
                     </p>
                 <!-- /.codeUnit --></div>
             </section>
+
+            <section>
+                <h1>Events</h1>
+                <div class="codeUnit">
+                    <div class="code"><span class="jsComment">/* Syntax: */</span><br />fixnel.on('moveendx', function() {...});</div>
+                    <p lang="ja">
+                        <strong>movestart[x, y], moveend[x, y], move[x, y]</strong>それぞれにイベントが発火されます。<br />
+                        moveイベントのみ、引数として <strong>{value: pos}</strong> データが渡されます。現在の移動量を返します。
+                    </p>
+    
+                    <p lang="en">
+                        Fixnel fire event each of <strong>movestart[x, y], moveend[x, y], move[x, y]</strong>.<br />
+                        move event takes object (<strong>{value: pos}</strong>) as argument. It is value of moving amount.
+                    </p>
+                <!-- /.codeUnit --></div>
+
+
+                <div class="codeUnit">
+                    <div class="code">fixnel.update();</div>
+                    <p lang="ja">
+                        <strong>update</strong> メソッドは高さが変更されたときに呼び出すことで、スクロール量などをアップデートします。<br />
+                        デフォルトでは <strong>window.resizeが</strong> 発火したタイミングで自動的に実行されるので、スマートフォンの回転時は自動でアップデートされます。<br />
+                        Ajaxなどでコンテンツの中身が動的に変化した場合などに呼び出してください。
+                    </p>
+    
+                    <p lang="en">
+                        <strong>update</strong> method give to control for contents height changing. If you update contents, you should call the update method. When <strong>window.resize</strong> was fired, fixnel called update automatically.
+                    </p>
+                <!-- /.codeUnit --></div>
+            </section>
         </section>
     </article>
 </div>
@@ -156,8 +186,20 @@
 <!-- FOOTER  -->
 <div id="footer_wrap" class="outer">
     <footer class="inner">
+        <p>Created by <a href="https://twitter.com/edo_m18">@edo_m18</a></p>
+        <div>
+        <a href="https://twitter.com/share" class="twitter-share-button" data-via="edo_m18">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=252481564869710";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+        </div>
         <p class="copyright">Fixnel.js maintained by <a href="https://github.com/edom18">edom18</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
     </footer>
 </div>
 
