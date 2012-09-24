@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.5.3
+ * @version  0.5.4
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -30,6 +30,12 @@
         sin  = Math.sin,
         cos  = Math.cos,
         PI   = Math.PI;
+
+    /////////////////////////////////////////////
+    
+    function preventDefault(e) {
+        e.preventDefault();
+    }
 
     /////////////////////////////////////////////
 
@@ -318,7 +324,7 @@
     /**
      * Manage the fade in/out and function.
      * @constructor
-     * @param {VScrollbarObject} scbar
+     * @param {ScrollbarBase} scbar
      */
     function Fader() {
         this.init.apply(this, arguments);
@@ -431,6 +437,9 @@
                 self.fadeOut();
             }, ms);
         },
+        cancelDelay: function () {
+            clearTimeout(this.waitTimer);
+        },
         _getOpacity: function () {
             return this.target.style.opacity;
         },
@@ -447,7 +456,7 @@
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /** @constructor */
-    function ScrollbarBase(fl) {
+    function ScrollbarBase(fl, opt) {
         this.init.apply(this, arguments);
     }
     ScrollbarBase.extend = _extend;
@@ -456,9 +465,12 @@
         FPS: 1000 / 60,
         DURATION: 30,
         Easing: Easing,
-        init: function (fl) {
+        init: function (fl, opt) {
         
+            opt || (opt = {});
+
             this.fl = fl;
+            this._opt = opt;
 
             this._createElement();
             this._getContentInfo();
@@ -591,6 +603,7 @@
          */
         _moveStart: function () {
             clearTimeout(this.timer);
+            this._fader.cancelDelay();
             if (this.moving || this.timer) {
                 return false;
             }
@@ -711,7 +724,7 @@
             el.style.cssText = [
                 'opacity: 0;',
                 'position: absolute;',
-                'right: 1px;',
+                'right: 2px;',
                 'top: 0;',
                 'width: 6px;'
             ].join('');
@@ -722,9 +735,9 @@
                 'left: 0;',
                 'top: 0;',
                 'width: 100%;',
-                'background-color: rgba(0, 0, 0, 0.5);',
-                'border-color: rgba(255, 255, 255, 0.3);',
-                'border-radius: 3px;'
+                'background-color: ' + (this._opt.scrollbarColor || 'rgba(0, 0, 0, 0.5)') + ';',
+                'border: solid 1px ' + (this._opt.scrollbarBdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
+                'border-radius: ' + (this._opt.scrollbarBdrRadius || '3px') + ';'
             ].join('');
 
             el.appendChild(inner);
@@ -808,7 +821,7 @@
             el.style.cssText = [
                 'opacity: 0;',
                 'position: absolute;',
-                'bottom: 1px;',
+                'bottom: 2px;',
                 'left: 0;',
                 'height: 6px;'
             ].join('');
@@ -819,9 +832,9 @@
                 'left: 0;',
                 'top: 0;',
                 'height: 100%;',
-                'background-color: rgba(0, 0, 0, 0.5);',
-                'border-color: rgba(255, 255, 255, 0.3);',
-                'border-radius: 3px;'
+                'background-color: ' + (this._opt.scrollbarColor || 'rgba(0, 0, 0, 0.5)') + ';',
+                'border: solid 1px ' + (this._opt.scrollbarBdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
+                'border-radius: ' + (this._opt.scrollbarBdrRadius || '3px') + ';'
             ].join('');
 
             el.appendChild(inner);
@@ -889,13 +902,21 @@
     Fixnel.prototype = copyClone({}, EventDispatcher.prototype, {
         _setEvents: function () {
             if (this._vfixnel) {
+                this._vfixnel.on('movestart', this._moveStartY, this);
                 this._vfixnel.on('move', this._moveY, this);
                 this._vfixnel.on('moveend', this._moveEndY, this);
             }
             if (this._hfixnel) {
+                this._hfixnel.on('movestart', this._moveStartX, this);
                 this._hfixnel.on('move', this._moveX, this);
                 this._hfixnel.on('moveend', this._moveEndX, this);
             }
+        },
+        _moveStartX: function () {
+            this.trigger('movestartx');
+        },
+        _moveStartY: function () {
+            this.trigger('movestarty');
         },
         _moveX: function (e, data) {
             this.trigger('movex', data);
@@ -914,17 +935,17 @@
             opt || (opt = {});
 
             if (opt.direction === Fixnel.directionType.BOTH) {
-                this._vfixnel = new VFixnel(el);
-                this._hfixnel = new HFixnel(el);
+                this._vfixnel = new VFixnel(el, opt);
+                this._hfixnel = new HFixnel(el, opt);
             }
             else if (opt.direction === Fixnel.directionType.HORIZONTAL) {
-                this._hfixnel = new HFixnel(el);
+                this._hfixnel = new HFixnel(el, opt);
             }
             else if (opt.direction === Fixnel.directionType.VERTICAL) {
-                this._vfixnel = new VFixnel(el);
+                this._vfixnel = new VFixnel(el, opt);
             }
             else {
-                this._vfixnel = new VFixnel(el);
+                this._vfixnel = new VFixnel(el, opt);
             }
 
             this._setEvents();
@@ -951,7 +972,7 @@
     ////////////////////////////////////////////////////////////////////
 
     /** @constructor */
-    function FixnelBase(el) {
+    function FixnelBase(el, opt) {
         this.init.apply(this, arguments);
     }
     FixnelBase.extend = _extend;
@@ -984,16 +1005,29 @@
         /** @type {number} */
         pos: 0,
 
+        _getScrollbarOptions: function () {
+            var ret = {
+                scrollbarColor: this._opt.scrollbarColor,
+                scrollbarBdrColor: this._opt.scrollbarBdrColor,
+                scrollbarBdrRadius: this._opt.scrollbarBdrRadius
+            };
+
+            return ret;
+        },
+
         /**
          * Initialize Fixnel.
          * @param {Element} el
          */
-        init: function (el) {
+        init: function (el, opt) {
+
+            opt || (opt = {});
         
             var self = this,
                 className = 'fixnel-body';
 
             this.el = el;
+            this._opt = opt;
             this.parentEl = el.parentNode;
             this.Easing = Easing;
             this.el.originalSize = this.getSize();
@@ -1007,7 +1041,9 @@
             el.addEventListener(event.START, _bind(this._down, this), false);
             el.addEventListener(event.START, _bind(this._stop, this), false);
             doc.addEventListener(event.END, _bind(this._up, this), false);
-            doc.addEventListener(event.MOVE, _bind(this._move, this), false);
+            el.addEventListener(event.MOVE, _bind(this._move, this), false);
+
+            this.parentEl.addEventListener(event.START, preventDefault, false);
 
             win.addEventListener('resize', _bind(this.update, this), false);
         },
@@ -1080,7 +1116,7 @@
                 _v = this._v,
                 ret = 0;
 
-            if (this.bouncing) {
+            if (!!this.bounce) {
                 ret = this.bounce.getValue();
 
                 if (ret === null) {
@@ -1097,13 +1133,11 @@
                     b = oldPos | 0;
                     c = 0 - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
-                    this.bouncing = true;
                 }
                 else if (oldPos < (edge = -this._getEdge())) {
                     b = oldPos | 0;
                     c = edge - b;
                     this.bounce = new this.Easing('easeOutExpo', t, b, c, d);
-                    this.bouncing = true;
                 }
                 else {
                     return null;
@@ -1125,6 +1159,7 @@
          * Do initial settings
          */
         _initSettings: function () {
+
             var position = window.getComputedStyle(this.parentEl, '').position;
 
             this.el.style.webkitTextSizeAdjust = 'none';
@@ -1191,8 +1226,8 @@
         _stopScrolling: function () {
             this._v = 0;
             clearInterval(this.timer);
+            this.timer = null;
             this.moving = false;
-            this.bouncing = false;
             this.bounce = null;
             this.trigger('moveend');
         },
@@ -1308,6 +1343,9 @@
                 this._stopScrolling();
             }
             
+            clearInterval(this.timer);
+            this.bounce = null;
+
             this.dragging = true;
             this.trigger('movestart');
 
@@ -1326,7 +1364,11 @@
             if (!this.dragging) {
                 return true;
             }
+
             clearTimeout(this.stopTimer);
+            clearTimeout(this.timer);
+
+            this.bounce = null;
 
             var oldPos = this._getPos(),
                 now = +new Date(),
@@ -1390,7 +1432,7 @@
             GETTER & SETTER
         --------------------------------------------------------------- */
         _getScrollbar: function () {
-            return new VScrollbar(this);
+            return new VScrollbar(this, this._getScrollbarOptions());
         },
         _setSize: function (val) {
             if (!val) {
@@ -1469,7 +1511,7 @@
             GETTER & SETTER
         --------------------------------------------------------------- */
         _getScrollbar: function () {
-            return new HScrollbar(this);
+            return new HScrollbar(this, this._getScrollbarOptions());
         },
         _setSize: function (val) {
             if (!val) {
@@ -1544,3 +1586,4 @@
     exports.Fixnel = Fixnel;
 
 }(this, document, this));
+
