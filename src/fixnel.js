@@ -6,7 +6,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @author   Kazuya Hiruma (http://css-eblog.com/)
- * @version  0.5.3
+ * @version  0.5.4
  * @github   https://github.com/edom18/fixnel.js
  */
 (function (win, doc, exports) {
@@ -450,7 +450,7 @@
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /** @constructor */
-    function ScrollbarBase(fl) {
+    function ScrollbarBase(fl, opt) {
         this.init.apply(this, arguments);
     }
     ScrollbarBase.extend = _extend;
@@ -459,9 +459,12 @@
         FPS: 1000 / 60,
         DURATION: 30,
         Easing: Easing,
-        init: function (fl) {
+        init: function (fl, opt) {
         
+            opt || (opt = {});
+
             this.fl = fl;
+            this._opt = opt;
 
             this._createElement();
             this._getContentInfo();
@@ -715,7 +718,7 @@
             el.style.cssText = [
                 'opacity: 0;',
                 'position: absolute;',
-                'right: 1px;',
+                'right: 2px;',
                 'top: 0;',
                 'width: 6px;'
             ].join('');
@@ -726,9 +729,9 @@
                 'left: 0;',
                 'top: 0;',
                 'width: 100%;',
-                'background-color: rgba(0, 0, 0, 0.5);',
-                'border-color: rgba(255, 255, 255, 0.3);',
-                'border-radius: 3px;'
+                'background-color: ' + (this._opt.bgColor || 'rgba(0, 0, 0, 0.5)') + ';',
+                'border: solid 1px ' + (this._opt.bdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
+                'border-radius: ' + (this._opt.bdrRadius || '3px') + ';'
             ].join('');
 
             el.appendChild(inner);
@@ -812,7 +815,7 @@
             el.style.cssText = [
                 'opacity: 0;',
                 'position: absolute;',
-                'bottom: 1px;',
+                'bottom: 2px;',
                 'left: 0;',
                 'height: 6px;'
             ].join('');
@@ -823,9 +826,9 @@
                 'left: 0;',
                 'top: 0;',
                 'height: 100%;',
-                'background-color: rgba(0, 0, 0, 0.5);',
-                'border-color: rgba(255, 255, 255, 0.3);',
-                'border-radius: 3px;'
+                'background-color: ' + (this._opt.bgColor || 'rgba(0, 0, 0, 0.5)') + ';',
+                'border: solid 1px ' + (this._opt.bdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
+                'border-radius: ' + (this._opt.bdrRadius || '3px') + ';'
             ].join('');
 
             el.appendChild(inner);
@@ -926,17 +929,17 @@
             opt || (opt = {});
 
             if (opt.direction === Fixnel.directionType.BOTH) {
-                this._vfixnel = new VFixnel(el);
-                this._hfixnel = new HFixnel(el);
+                this._vfixnel = new VFixnel(el, opt);
+                this._hfixnel = new HFixnel(el, opt);
             }
             else if (opt.direction === Fixnel.directionType.HORIZONTAL) {
-                this._hfixnel = new HFixnel(el);
+                this._hfixnel = new HFixnel(el, opt);
             }
             else if (opt.direction === Fixnel.directionType.VERTICAL) {
-                this._vfixnel = new VFixnel(el);
+                this._vfixnel = new VFixnel(el, opt);
             }
             else {
-                this._vfixnel = new VFixnel(el);
+                this._vfixnel = new VFixnel(el, opt);
             }
 
             this._setEvents();
@@ -963,7 +966,7 @@
     ////////////////////////////////////////////////////////////////////
 
     /** @constructor */
-    function FixnelBase(el) {
+    function FixnelBase(el, opt) {
         this.init.apply(this, arguments);
     }
     FixnelBase.extend = _extend;
@@ -996,16 +999,29 @@
         /** @type {number} */
         pos: 0,
 
+        _getScrollbarOptions: function () {
+            var ret = {
+                bgColor: this._opt.bgColor,
+                bdrColor: this._opt.bdrColor,
+                bdrRadius: this._opt.bdrRadius
+            };
+
+            return ret;
+        },
+
         /**
          * Initialize Fixnel.
          * @param {Element} el
          */
-        init: function (el) {
+        init: function (el, opt) {
+
+            opt || (opt = {});
         
             var self = this,
                 className = 'fixnel-body';
 
             this.el = el;
+            this._opt = opt;
             this.parentEl = el.parentNode;
             this.Easing = Easing;
             this.el.originalSize = this.getSize();
@@ -1408,7 +1424,7 @@
             GETTER & SETTER
         --------------------------------------------------------------- */
         _getScrollbar: function () {
-            return new VScrollbar(this);
+            return new VScrollbar(this, this._getScrollbarOptions());
         },
         _setSize: function (val) {
             if (!val) {
@@ -1487,7 +1503,7 @@
             GETTER & SETTER
         --------------------------------------------------------------- */
         _getScrollbar: function () {
-            return new HScrollbar(this);
+            return new HScrollbar(this, this._getScrollbarOptions());
         },
         _setSize: function (val) {
             if (!val) {
