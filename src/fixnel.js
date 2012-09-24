@@ -32,6 +32,12 @@
         PI   = Math.PI;
 
     /////////////////////////////////////////////
+    
+    function preventDefault(e) {
+        e.preventDefault();
+    }
+
+    /////////////////////////////////////////////
 
     function abstractMethod() {
         throw new Error('MUST BE IMPLEMENTS THIS METHOD');
@@ -1036,6 +1042,8 @@
             el.addEventListener(event.START, _bind(this._stop, this), false);
             doc.addEventListener(event.END, _bind(this._up, this), false);
             el.addEventListener(event.MOVE, _bind(this._move, this), false);
+
+            this.parentEl.addEventListener(event.START, preventDefault, false);
 
             win.addEventListener('resize', _bind(this.update, this), false);
         },
