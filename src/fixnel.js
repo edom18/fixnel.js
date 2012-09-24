@@ -729,9 +729,9 @@
                 'left: 0;',
                 'top: 0;',
                 'width: 100%;',
-                'background-color: ' + (this._opt.bgColor || 'rgba(0, 0, 0, 0.5)') + ';',
-                'border: solid 1px ' + (this._opt.bdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
-                'border-radius: ' + (this._opt.bdrRadius || '3px') + ';'
+                'background-color: ' + (this._opt.scrollbarColor || 'rgba(0, 0, 0, 0.5)') + ';',
+                'border: solid 1px ' + (this._opt.scrollbarBdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
+                'border-radius: ' + (this._opt.scrollbarBdrRadius || '3px') + ';'
             ].join('');
 
             el.appendChild(inner);
@@ -826,9 +826,9 @@
                 'left: 0;',
                 'top: 0;',
                 'height: 100%;',
-                'background-color: ' + (this._opt.bgColor || 'rgba(0, 0, 0, 0.5)') + ';',
-                'border: solid 1px ' + (this._opt.bdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
-                'border-radius: ' + (this._opt.bdrRadius || '3px') + ';'
+                'background-color: ' + (this._opt.scrollbarColor || 'rgba(0, 0, 0, 0.5)') + ';',
+                'border: solid 1px ' + (this._opt.scrollbarBdrColor || 'rgba(255, 255, 255, 0.3)') + ';',
+                'border-radius: ' + (this._opt.scrollbarBdrRadius || '3px') + ';'
             ].join('');
 
             el.appendChild(inner);
@@ -1001,9 +1001,9 @@
 
         _getScrollbarOptions: function () {
             var ret = {
-                bgColor: this._opt.bgColor,
-                bdrColor: this._opt.bdrColor,
-                bdrRadius: this._opt.bdrRadius
+                scrollbarColor: this._opt.scrollbarColor,
+                scrollbarBdrColor: this._opt.scrollbarBdrColor,
+                scrollbarBdrRadius: this._opt.scrollbarBdrRadius
             };
 
             return ret;
