@@ -318,7 +318,7 @@
     /**
      * Manage the fade in/out and function.
      * @constructor
-     * @param {VScrollbarObject} scbar
+     * @param {ScrollbarBase} scbar
      */
     function Fader() {
         this.init.apply(this, arguments);
