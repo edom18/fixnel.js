@@ -81,14 +81,23 @@
             <section>
                 <h1>Options</h1>
                 <div class="code">
-                    <p>{direction: '<i>[which direction]</i>'}</p>
+                    <p>
+                        {<br />
+                            <span class="depth1">direction: '<i><span class="jsString">[which direction]</span></i>',</span><br />
+                            <span class="depth1">scrollbarColor: '<i><span class="jsString">[any color as CSS colors]</span></i>',</span><br />
+                            <span class="depth1">scrollbarBdrColor: '<i><span class="jsString">[any color as CSS colors]</span></i>',</span><br />
+                            <span class="depth1">scrollbarBdrRadius: <i>[number]</i></span><br />
+                        }
+                    </p>
                 <!-- /.code --></div>
     
                 <p lang="ja">
-                   directionには文字列で、<strong>['vertical' | 'horizontal' | 'both']</strong>のいずれかを指定するか、 <strong>Fixnel.directionType.[VERTICAL | HORIZONTAL | BOTH]</strong>のいずれかを指定します。 デフォルトは <strong>vertical</strong> です。 
+                    directionには文字列で、<strong>['vertical' | 'horizontal' | 'both']</strong>のいずれかを指定するか、 <strong>Fixnel.directionType.[VERTICAL | HORIZONTAL | BOTH]</strong>のいずれかを指定します。 デフォルトは <strong>vertical</strong> です。 <br />
+                    scroll****は、それぞれスクロールバーの色と丸みを設定します。背景が黒などの場合に色を指定することで視認性が上がります。
                 </p>
                 <p lang="en">
-                    Options takes one object as argument. One of options is "direction". That is given a string. Whichever are <strong>['vertical' | 'horizontal' | 'both']</strong>. You also can use Fixnel.directionType property. It contains <strong>[VERTICAL | HORIZONTAL | BOTH]</strong>. Default is <strong>"vertical"</strong>. 
+                    Options takes one object as argument. One of options is "direction". That is given a string. Whichever are <strong>['vertical' | 'horizontal' | 'both']</strong>. You also can use Fixnel.directionType property. It contains <strong>[VERTICAL | HORIZONTAL | BOTH]</strong>. Default is <strong>"vertical"</strong>. <br />
+                    scroll*** is scrollbar settings for color and radius. If you use Fixnel on the background color is black, you can apply any color to scrollbar.
                 </p>
             </section>
 
